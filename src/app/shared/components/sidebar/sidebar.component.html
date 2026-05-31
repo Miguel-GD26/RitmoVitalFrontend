@@ -1,0 +1,58 @@
+<!-- Overlay mobile -->
+<div class="overlay" [class.active]="isMobileOpen()" (click)="closeMobileSidebar()"></div>
+
+<!-- Sidebar -->
+<aside class="sidebar" [class.mobile-open]="isMobileOpen()" [class.collapsed]="isCollapsed()">
+  <nav class="sidebar-nav">
+    <ul class="nav-list">
+
+      @for (item of menuItems(); track item.label) {
+        <li class="nav-item"
+            [class.active]="item.isOpen"
+            [class.active-page]="item.isActive">
+
+          @switch (item.type ?? 'link') {
+
+            @case ('group') {
+              <div class="nav-link dropdown-toggle" (click)="toggleMenuItem(item)">
+                <i class="nav-icon" [class]="item.icon"></i>
+                <span>{{ item.label }}</span>
+                @if (item.badge) {
+                  <span class="nav-badge">{{ item.badge }}</span>
+                }
+                <i class="arrow fas fa-chevron-right"></i>
+              </div>
+
+              @if (item.isOpen && item.subMenu && !isCollapsed()) {
+                <ul class="submenu">
+                  @for (sub of item.subMenu; track sub.route) {
+                    <li class="submenu-item">
+                      <a [routerLink]="sub.route"
+                         [class.active]="sub.isActive"
+                         class="submenu-toggle"
+                         (click)="onLinkClick()">
+                        <span>{{ sub.label }}</span>
+                      </a>
+                    </li>
+                  }
+                </ul>
+              }
+            }
+
+            @default {
+              <a [routerLink]="item.route" class="nav-link" (click)="onLinkClick()">
+                <i class="nav-icon" [class]="item.icon"></i>
+                <span>{{ item.label }}</span>
+                @if (item.badge) {
+                  <span class="nav-badge">{{ item.badge }}</span>
+                }
+              </a>
+            }
+
+          }
+        </li>
+      }
+
+    </ul>
+  </nav>
+</aside>

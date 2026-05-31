@@ -1,0 +1,260 @@
+<!-- MODAL DE CARGA DE ARCHIVOS -->
+<app-upload-modal
+    *ngIf="showUploadModal()"
+    (evaluationSubmit)="onEvaluationSubmit($event)"
+    (productionSubmit)="onProductionSubmit($event)"
+    (cancelled)="showUploadModal.set(false)">
+</app-upload-modal>
+
+<!-- OVERLAY DE ANÁLISIS EN PROGRESO -->
+<div *ngIf="isAnalyzing()" class="analysis-overlay">
+    <div class="analysis-overlay-content">
+        <i class="fas fa-spinner fa-spin fa-2x"></i>
+        <p>Procesando señal ECG...</p>
+        <small>Esto puede tomar unos segundos</small>
+    </div>
+</div>
+
+<!-- PANTALLA DE LOGIN -->
+<div *ngIf="!isAuthenticated()" class="login-screen">
+    <div class="login-card">
+        <div class="login-brand">
+            <div class="brand-icon heartbeat"><i class="fa-solid fa-heart-pulse"></i></div>
+            <h1>RitmoVital</h1>
+            <p>Sistema Avanzado de Detección de Arritmias</p>
+        </div>
+
+        <form class="login-form" (ngSubmit)="login()">
+            <div class="login-field">
+                <label for="username"><i class="fas fa-user"></i> Usuario</label>
+                <input
+                    id="username"
+                    type="text"
+                    [(ngModel)]="loginUsername"
+                    name="username"
+                    placeholder="Ingresa tu usuario"
+                    autocomplete="username"
+                    required>
+            </div>
+            <div class="login-field">
+                <label for="password"><i class="fas fa-lock"></i> Contraseña</label>
+                <input
+                    id="password"
+                    type="password"
+                    [(ngModel)]="loginPassword"
+                    name="password"
+                    placeholder="Ingresa tu contraseña"
+                    autocomplete="current-password"
+                    required>
+            </div>
+
+            <p *ngIf="loginError()" class="login-error">
+                <i class="fas fa-exclamation-circle"></i> {{ loginError() }}
+            </p>
+
+            <button
+                type="submit"
+                class="action-btn login-btn"
+                [disabled]="isLoggingIn() || !loginUsername || !loginPassword">
+                <i class="fas"
+                   [class.fa-sign-in-alt]="!isLoggingIn()"
+                   [class.fa-spinner]="isLoggingIn()"
+                   [class.fa-spin]="isLoggingIn()"></i>
+                {{ isLoggingIn() ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- DASHBOARD PRINCIPAL (solo cuando autenticado) -->
+<ng-container *ngIf="isAuthenticated()">
+
+<header class="medical-header">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-lg-7 col-md-12">
+                <div class="brand-container">
+                    <div class="brand-icon heartbeat"><i class="fa-solid fa-heart-pulse"></i></div>
+                    <div class="brand-text">
+                        <h1>RitmoVital</h1>
+                        <p>Sistema Avanzado de Detección de Arritmias mediante Aprendizaje Profundo</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 col-md-12">
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Precisión Validada</span>
+                        <span class="stat-value">{{ MODEL_ACCURACY }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Análisis Previos</span>
+                        <span class="stat-value">{{ TOTAL_ANALYSES }}</span>
+                    </div>
+                    <button (click)="logout()" class="action-btn logout-btn" title="Cerrar sesión">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Cerrar Sesión
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="container-fluid">
+    <main class="dashboard-grid">
+        <section class="main-column">
+            <div class="card ecg-card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-wave-square"></i> Módulo de Análisis de Señal ECG</h2>
+                </div>
+                <div class="ecg-plot-container">
+                    <ng-container *ngIf="!isLoading(); else loadingTemplate">
+                        <img *ngIf="ecgPlotUrl()" [src]="ecgPlotUrl()" alt="Gráfico ECG" class="ecg-plot-image">
+                        <p *ngIf="errorMessage()" class="placeholder-text" style="color: var(--warning-color);">{{ errorMessage() }}</p>
+                        <p *ngIf="!ecgPlotUrl() && !errorMessage()" class="placeholder-text">Cargue una muestra para iniciar el análisis.</p>
+                    </ng-container>
+                    <ng-template #loadingTemplate>
+                         <p class="placeholder-text"><i class="fas fa-spinner fa-spin"></i> Cargando nueva muestra...</p>
+                    </ng-template>
+                </div>
+                <div class="action-buttons">
+                     <button (click)="classifyCurrentSample()" [disabled]="isClassifying() || !currentSample() || isLoading()" class="action-btn">
+                        <i class="fas" [class.fa-microscope]="!isClassifying()" [class.fa-spinner]="isClassifying()" [class.fa-spin]="isClassifying()"></i>
+                        {{ isClassifying() ? 'Analizando...' : 'Iniciar Análisis' }}
+                    </button>
+                    <button (click)="loadNewSample()" [disabled]="isLoading() || isClassifying()" class="action-btn secondary">
+                        <i class="fas fa-sync-alt"></i>
+                        Cargar Nueva Muestra
+                    </button>
+                    <button (click)="openPatientUploadModal()" [disabled]="isLoading() || isClassifying()" class="action-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <i class="fas fa-file-upload"></i>
+                        Analizar Paciente Real
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <aside class="sidebar-column">
+            <div *ngIf="showPatientResults()">
+
+                <!-- RESULTADOS DEL MODO EVALUACIÓN -->
+                <div *ngIf="analysisMode() === 'evaluation' && patientResult()" class="card results-card results-card--delayed">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-chart-bar"></i> Resultados Evaluación: {{patientResult()!.record_name}}</h2>
+                    </div>
+                    <div class="patient-results-body">
+                        <div class="results-section">
+                            <h4 class="results-section-title">Información General</h4>
+                            <p><strong>Total de latidos:</strong> {{patientResult()!.total_latidos}}</p>
+                            <p><strong>Frecuencia de muestreo:</strong> {{patientResult()!.sampling_rate}} Hz</p>
+                            <p><strong>Accuracy:</strong> <span class="accuracy-highlight">{{patientResult()!.accuracy.toFixed(2)}}%</span></p>
+                        </div>
+                        <div class="results-section">
+                            <h4 class="results-section-title">Distribución de Arritmias</h4>
+                            <div *ngFor="let stat of getStatsArray(patientResult()!.estadisticas.porcentaje)" class="stat-row">
+                                <div class="stat-row-header">
+                                    <span>{{stat.clase}}</span>
+                                    <span class="stat-row-pct">{{stat.porcentaje.toFixed(2)}}%</span>
+                                </div>
+                                <div class="mini-bar-track">
+                                    <div class="mini-bar-fill" [style.width.%]="stat.porcentaje"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <button (click)="loadNewSample()" class="action-btn secondary action-btn--full">
+                            <i class="fas fa-arrow-left"></i> Volver a Modo Demo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- RESULTADOS DEL MODO PRODUCCIÓN -->
+                <div *ngIf="analysisMode() === 'production' && productionResult()" class="card results-card results-card--delayed">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-heartbeat"></i> Resultados Clínicos: {{productionResult()!.record_name}}</h2>
+                    </div>
+                    <div class="patient-results-body">
+                        <div class="results-section">
+                            <h4 class="results-section-title">Información General</h4>
+                            <p><strong>Total de latidos detectados:</strong> {{productionResult()!.total_latidos}}</p>
+                            <p><strong>Frecuencia de muestreo:</strong> {{productionResult()!.sampling_rate}} Hz</p>
+                        </div>
+                        <div class="results-section">
+                            <h4 class="results-section-title">Distribución de Arritmias Predicha</h4>
+                            <div *ngFor="let stat of getStatsArray(productionResult()!.estadisticas.porcentaje)" class="stat-row">
+                                <div class="stat-row-header">
+                                    <span>{{stat.clase}}</span>
+                                    <span class="stat-row-pct">{{stat.porcentaje.toFixed(2)}}%</span>
+                                </div>
+                                <div class="mini-bar-track">
+                                    <div class="mini-bar-fill" [style.width.%]="stat.porcentaje"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <button (click)="loadNewSample()" class="action-btn secondary action-btn--full">
+                            <i class="fas fa-arrow-left"></i> Volver a Modo Demo
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RESULTADOS DE LATIDO INDIVIDUAL (MODO DEMO) -->
+            <div *ngIf="!showPatientResults()" class="card results-card" style="animation-delay: 0.1s;">
+                <div class="card-header d-flex justify-content-between align-items-start">
+                    <h2 class="card-title"><i class="fas fa-cogs"></i> Análisis RitmoVital</h2>
+                    <span *ngIf="classificationResult()" class="status" [class.status-ok]="classificationResult()!.is_correct" [class.status-fail]="!classificationResult()!.is_correct">
+                        {{ classificationResult()!.is_correct ? 'Precisión Confirmada' : 'Requiere Revisión' }}
+                    </span>
+                </div>
+                <ng-container *ngIf="classificationResult(); else noResults">
+                    <div class="confidence-gauge">
+                        <div class="gauge-circle" [style.--progress.%]="classificationResult()!.confidence_percent">
+                            <div class="gauge-inner">
+                                <div>
+                                    <span class="gauge-value">{{ classificationResult()!.confidence }}</span>
+                                    <div class="gauge-label">Confianza</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="result-details-list">
+                        <li>
+                            <span class="result-label"><i class="fas fa-robot"></i> Detección:</span>
+                            <span class="result-value">{{ classificationResult()!.prediction }}</span>
+                        </li>
+                        <li>
+                            <span class="result-label"><i class="fas fa-user-md"></i> Etiqueta:</span>
+                            <span class="result-value">{{ classificationResult()!.true_label }}</span>
+                        </li>
+                        <li>
+                            <span class="result-label"><i class="fas fa-check-double"></i> Veredicto:</span>
+                            <span class="result-value" [class.verdict-correct]="classificationResult()!.is_correct" [class.verdict-incorrect]="!classificationResult()!.is_correct">
+                                {{ classificationResult()!.is_correct ? 'Preciso' : 'Discrepancia' }}
+                            </span>
+                        </li>
+                    </ul>
+                </ng-container>
+                <ng-template #noResults>
+                    <p *ngIf="!isClassifying()" class="placeholder-text">Los resultados del análisis se mostrarán aquí.</p>
+                    <p *ngIf="isClassifying()" class="placeholder-text"><i class="fas fa-spinner fa-spin"></i> Calculando resultados...</p>
+                </ng-template>
+            </div>
+
+            <div class="card supervisor-card" style="animation-delay: 0.2s;">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-user-shield"></i> Supervisor del Modelo</h2>
+                </div>
+                <div class="supervisor-card-content">
+                    <img src="doctor.png" alt="Supervisor" class="supervisor-image">
+                    <div class="supervisor-info">
+                        <h3>{{ SUPERVISOR_NAME }}</h3>
+                        <p>{{ SUPERVISOR_ROLE }}</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+</div>
+
+</ng-container>

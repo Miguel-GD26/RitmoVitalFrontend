@@ -1,0 +1,121 @@
+.form-input[readonly] { background: #F8FAFC; color: #475569; cursor: default; }
+
+.page-header { margin-bottom: 1.5rem; }
+.page-title { font-size: 1.5rem; font-weight: 700; color: var(--text-primary, #1a365d); margin: 0; }
+
+.success-banner {
+  background: #f0fff4; border-left: 4px solid #38a169; color: #276749;
+  padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem;
+}
+.error-banner {
+  background: #fff5f5; border-left: 4px solid #e53e3e; color: #c53030;
+  padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem;
+}
+
+.card { background: white; border-radius: 12px; box-shadow: 0 1px 6px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 1rem; }
+.card-header { padding: 1rem 1.25rem; border-bottom: 1px solid #eef0f5; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; }
+.card-title { margin: 0; font-size: 1rem; font-weight: 600; color: #1a365d; }
+.card-header-actions { display: flex; align-items: center; gap: 0.75rem; }
+
+.search-wrapper { position: relative; display: flex; align-items: center; }
+.search-wrapper i { position: absolute; left: 0.6rem; color: #aaa; font-size: 0.85rem; }
+.search-input { padding: 0.4rem 0.75rem 0.4rem 2rem; border: 1px solid #ddd; border-radius: 8px; font-size: 0.85rem; width: 220px; outline: none; transition: border-color 0.15s; }
+.search-input:focus { border-color: #2c7be5; }
+
+/* Form card */
+.form-card { margin-bottom: 1rem; }
+.patient-form { padding: 1rem 1.25rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+@media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+.form-group { display: flex; flex-direction: column; gap: 0.3rem; }
+.form-control { padding: 0.5rem 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem; outline: none; transition: border-color 0.15s; font-family: inherit; }
+.form-control:focus { border-color: #2c7be5; }
+.form-control.is-invalid { border-color: #e53e3e; }
+.field-error { font-size: 0.78rem; color: #e53e3e; }
+.form-actions { display: flex; gap: 0.75rem; margin-top: 0.5rem; }
+
+/* Buttons */
+.action-btn {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.5rem 1rem; border-radius: 8px; border: none;
+  background: linear-gradient(135deg, #2c7be5, #1a56db); color: white;
+  font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: opacity 0.15s;
+}
+.action-btn:hover:not(:disabled) { opacity: 0.9; }
+.action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.action-btn.secondary { background: #f0f0f0; color: #444; }
+.action-btn.danger { background: #e53e3e; color: white; }
+
+/* Table */
+.loading-state { display: flex; align-items: center; gap: 0.75rem; padding: 2rem 1.25rem; color: #888; }
+.table-wrapper { overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.data-table th { background: #f8fafc; padding: 0.75rem 1rem; text-align: left; font-weight: 600; color: #555; border-bottom: 2px solid #eef0f5; white-space: nowrap; }
+.data-table td { padding: 0.7rem 1rem; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+.data-table tbody tr:hover { background: #f8fafc; }
+.td-name { font-weight: 500; }
+.td-center { text-align: center; }
+
+.action-btn-sm {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  padding: 0.3rem 0.55rem; border-radius: 6px; border: 1px solid #ddd;
+  background: white; font-size: 0.8rem; cursor: pointer; transition: all 0.15s;
+}
+.action-btn-sm.secondary:hover { background: #f0f4ff; border-color: #2c7be5; color: #2c7be5; }
+.action-btn-sm.danger:hover { background: #fff5f5; border-color: #e53e3e; color: #e53e3e; }
+
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; gap: 0.75rem;
+  padding: 3rem; color: #aaa; text-align: center;
+}
+.empty-state i { opacity: 0.4; }
+
+/* Pagination */
+.pagination-bar { display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1.25rem; border-top: 1px solid #eef0f5; justify-content: center; }
+.pagination-btn { padding: 0.4rem 0.9rem; border-radius: 6px; border: 1px solid #ddd; background: white; cursor: pointer; font-size: 0.85rem; transition: all 0.15s; }
+.pagination-btn:hover:not(:disabled) { background: #f0f4ff; border-color: #2c7be5; color: #2c7be5; }
+.pagination-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.pagination-info { font-size: 0.85rem; color: #666; }
+
+/* DNI Lookup */
+.lookup-spinner {
+  position: absolute;
+  right: 0.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94A3B8;
+  font-size: 0.8rem;
+  z-index: 4;
+}
+.lookup-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 500;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  margin-top: 0.2rem;
+}
+.lookup-badge--sistema {
+  background: #EFF6FF;
+  color: #2563EB;
+  border: 1px solid #BFDBFE;
+}
+.lookup-badge--reniec {
+  background: #F0FDF4;
+  color: #16A34A;
+  border: 1px solid #BBF7D0;
+}
+
+/* Badge sub-fila en tabla */
+.td-sub {
+  margin-top: 0.2rem;
+}
+
+@media (max-width: 640px) {
+  .search-input { width: 100%; }
+  .search-wrapper { flex: 1; }
+}
+
+

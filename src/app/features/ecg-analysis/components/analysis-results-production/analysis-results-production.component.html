@@ -1,0 +1,81 @@
+<div class="results-layout">
+
+  <!-- ECG GRAPH -->
+  <section class="card ecg-card">
+    <div class="card-header">
+      <h2 class="card-title"><i class="fas fa-wave-square"></i> Señal ECG Analizada</h2>
+      <div class="card-header-meta">
+        <span class="badge-record">{{ result()?.record_name }}</span>
+        @if (patient()) {
+          <span class="badge-patient">
+            <i class="fas fa-user"></i>
+            {{ patient()!.nombre }} {{ patient()!.apellido }}
+          </span>
+        }
+      </div>
+    </div>
+    <div class="ecg-plot-container">
+      <img *ngIf="plotUrl()" [src]="plotUrl()" alt="Señal ECG" class="ecg-plot-image">
+      <p *ngIf="!plotUrl()" class="placeholder-text">Gráfico no disponible.</p>
+    </div>
+
+    <!-- TABLA DE LATIDOS con virtual scroll -->
+    <div *ngIf="result()?.latidos?.length" class="beats-section">
+      <h3 class="beats-title"><i class="fas fa-list-ul"></i> Latidos Detectados</h3>
+      <div class="beats-grid-header">
+        <span>#</span>
+        <span>R-Peak</span>
+        <span>Clase</span>
+        <span>Confianza</span>
+        <span>Prematuro</span>
+      </div>
+      <cdk-virtual-scroll-viewport itemSize="36" class="beats-viewport">
+        <div *cdkVirtualFor="let beat of result()!.latidos; trackBy: trackByIndex"
+             class="beats-grid-row">
+          <span class="mono">{{ beat.indice }}</span>
+          <span class="mono">{{ beat.r_peak }}</span>
+          <span>
+            <span class="chip chip-blue beat-chip">{{ beat.clase_predicha }}</span>
+          </span>
+          <span class="mono">{{ (beat.confianza * 100).toFixed(1) }}%</span>
+          <span>
+            <i *ngIf="beat.es_prematuro" class="fas fa-exclamation-circle text-warning"></i>
+            <span *ngIf="!beat.es_prematuro" class="text-muted">—</span>
+          </span>
+        </div>
+      </cdk-virtual-scroll-viewport>
+    </div>
+
+    <div class="action-buttons">
+      <button (click)="reset.emit()" class="action-btn secondary">
+        <i class="fas fa-arrow-left"></i> Analizar Otro Paciente
+      </button>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <aside class="card stats-card">
+    <div class="card-header">
+      <h2 class="card-title"><i class="fas fa-heartbeat"></i> Resultados Clínicos</h2>
+    </div>
+    <div *ngIf="result() as r">
+      <div class="results-section">
+        <h4 class="results-section-title">Información General</h4>
+        <div class="info-row"><span>Latidos detectados</span><strong>{{ r.total_latidos }}</strong></div>
+        <div class="info-row"><span>Frecuencia de muestreo</span><strong>{{ r.sampling_rate }} Hz</strong></div>
+      </div>
+      <div class="results-section">
+        <h4 class="results-section-title">Distribución Predicha de Arritmias</h4>
+        <div *ngFor="let stat of getStatsArray(r.estadisticas.porcentaje)" class="stat-row">
+          <div class="stat-row-header">
+            <span>{{ stat.clase }}</span>
+            <span class="stat-row-pct">{{ stat.porcentaje.toFixed(2) }}%</span>
+          </div>
+          <div class="mini-bar-track">
+            <div class="mini-bar-fill" [style.width.%]="stat.porcentaje"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>

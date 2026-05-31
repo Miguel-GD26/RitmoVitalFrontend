@@ -1,0 +1,125 @@
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="hero-left">
+    <div class="hero-icon"><i class="fas fa-flask"></i></div>
+    <div class="hero-text">
+      <h1>Demo ECG</h1>
+      <p>Clasificación de latidos — Base de datos MIT-BIH Arrhythmia</p>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="stat-chip">
+      <span class="stat-chip-label">Precisión del Modelo</span>
+      <span class="stat-chip-value">{{ MODEL_ACCURACY }}</span>
+    </div>
+    <div class="stat-chip">
+      <span class="stat-chip-label">Análisis Previos</span>
+      <span class="stat-chip-value">{{ TOTAL_ANALYSES }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="demo-layout">
+
+  <!-- ECG GRAPH CARD -->
+  <section class="card ecg-card">
+    <div class="card-header">
+      <h2 class="card-title">
+        <i class="fas fa-wave-square"></i> Señal Electrocardiográfica
+      </h2>
+      <span *ngIf="currentSample() && !isLoading()" class="badge-record">Muestra aleatoria</span>
+    </div>
+
+    <div class="ecg-plot-container">
+      <ng-container *ngIf="!isLoading(); else loadingTpl">
+        <img *ngIf="ecgPlotUrl()" [src]="ecgPlotUrl()" alt="Gráfico ECG" class="ecg-plot-image">
+        <p *ngIf="errorMessage()" class="placeholder-text error-text">
+          <i class="fas fa-exclamation-triangle"></i> {{ errorMessage() }}
+        </p>
+        <p *ngIf="!ecgPlotUrl() && !errorMessage()" class="placeholder-text">
+          Sin muestra cargada.
+        </p>
+      </ng-container>
+      <ng-template #loadingTpl>
+        <div class="loading-state">
+          <i class="fas fa-spinner fa-spin fa-2x"></i>
+          <p>Cargando nueva muestra ECG...</p>
+        </div>
+      </ng-template>
+    </div>
+
+    <div class="action-buttons">
+      <button
+        (click)="classifyCurrentSample()"
+        [disabled]="isClassifying() || !currentSample() || isLoading()"
+        class="action-btn">
+        <i class="fas"
+           [class.fa-microscope]="!isClassifying()"
+           [class.fa-spinner]="isClassifying()"
+           [class.fa-spin]="isClassifying()"></i>
+        {{ isClassifying() ? 'Analizando...' : 'Iniciar Análisis' }}
+      </button>
+      <button
+        (click)="loadNewSample()"
+        [disabled]="isLoading() || isClassifying()"
+        class="action-btn secondary">
+        <i class="fas fa-sync-alt"></i>
+        Cargar Nueva Muestra
+      </button>
+    </div>
+  </section>
+
+  <!-- RESULTS CARD -->
+  <aside class="card results-card">
+    <div class="card-header">
+      <h2 class="card-title"><i class="fas fa-chart-pie"></i> Resultado del Análisis</h2>
+      <span *ngIf="classificationResult()" class="status-badge"
+            [class.status-ok]="classificationResult()!.is_correct"
+            [class.status-fail]="!classificationResult()!.is_correct">
+        {{ classificationResult()!.is_correct ? 'Preciso' : 'Discrepancia' }}
+      </span>
+    </div>
+
+    <ng-container *ngIf="classificationResult(); else noResultsTpl">
+      <div class="confidence-gauge">
+        <div class="gauge-circle" [style.--progress]="classificationResult()!.confidence_percent">
+          <div class="gauge-inner">
+            <span class="gauge-value">{{ classificationResult()!.confidence }}</span>
+            <span class="gauge-label">Confianza</span>
+          </div>
+        </div>
+      </div>
+      <ul class="result-list">
+        <li>
+          <span class="result-label"><i class="fas fa-robot"></i> Predicción del Modelo</span>
+          <span class="result-value">{{ classificationResult()!.prediction }}</span>
+        </li>
+        <li>
+          <span class="result-label"><i class="fas fa-tag"></i> Etiqueta Real (MIT-BIH)</span>
+          <span class="result-value">{{ classificationResult()!.true_label }}</span>
+        </li>
+        <li>
+          <span class="result-label"><i class="fas fa-check-double"></i> Veredicto</span>
+          <span class="result-value"
+                [class.verdict-ok]="classificationResult()!.is_correct"
+                [class.verdict-fail]="!classificationResult()!.is_correct">
+            {{ classificationResult()!.is_correct ? 'Correcto' : 'Discrepancia' }}
+          </span>
+        </li>
+      </ul>
+    </ng-container>
+
+    <ng-template #noResultsTpl>
+      <div class="empty-results">
+        <i class="fas fa-heartbeat fa-3x"></i>
+        <p *ngIf="!isClassifying()">
+          Presiona <strong>Iniciar Análisis</strong> para clasificar el latido actual.
+        </p>
+        <p *ngIf="isClassifying()">
+          <i class="fas fa-spinner fa-spin"></i>&nbsp; Calculando resultados...
+        </p>
+      </div>
+    </ng-template>
+  </aside>
+
+</div>

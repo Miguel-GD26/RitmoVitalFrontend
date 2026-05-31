@@ -1,0 +1,229 @@
+<!-- MODALES -->
+<app-user-create-modal
+  *ngIf="showCreate()"
+  (saved)="onCreated()"
+  (closed)="showCreate.set(false)">
+</app-user-create-modal>
+
+<app-user-edit-modal
+  *ngIf="editingUser()"
+  [user]="editingUser()!"
+  (saved)="onSaved()"
+  (closed)="editingUser.set(null)">
+</app-user-edit-modal>
+
+<!-- FILTER DROPDOWN (position:fixed para escapar overflow:hidden) -->
+<div *ngIf="showFilters()"
+     class="fixed z-[9999] w-56 bg-white rounded-lg border border-gray-200 shadow-xl"
+     [style.top.px]="filtersPos().top"
+     [style.left.px]="filtersPos().left"
+     (click)="$event.stopPropagation()">
+
+  <div *ngIf="activeFilterCount() > 0"
+       class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+    <span class="text-xs font-medium text-gray-600">Filtros activos: {{ activeFilterCount() }}</span>
+    <button class="text-xs text-blue-600 hover:text-blue-800 font-medium" (click)="clearFilters()">Limpiar todo</button>
+  </div>
+
+  <div class="py-2">
+    <div class="px-4 pt-1 pb-1">
+      <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Rol</span>
+    </div>
+
+    <label class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors">
+      <input type="radio" name="roleFilter" class="w-4 h-4 text-blue-600"
+             [checked]="roleFilter() === ''" (change)="setRoleFilter('')">
+      <i class="fas fa-users text-gray-400 w-4 text-center text-xs"></i>
+      <span>Todos los roles</span>
+      <i *ngIf="roleFilter() === ''" class="fas fa-check ml-auto text-blue-500 text-xs"></i>
+    </label>
+
+    <label class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors">
+      <input type="radio" name="roleFilter" class="w-4 h-4 text-blue-600"
+             [checked]="roleFilter() === 'medico'" (change)="setRoleFilter('medico')">
+      <i class="fas fa-stethoscope text-blue-500 w-4 text-center text-xs"></i>
+      <span>Médico</span>
+      <i *ngIf="roleFilter() === 'medico'" class="fas fa-check ml-auto text-blue-500 text-xs"></i>
+    </label>
+
+    <label class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors">
+      <input type="radio" name="roleFilter" class="w-4 h-4 text-blue-600"
+             [checked]="roleFilter() === 'paciente'" (change)="setRoleFilter('paciente')">
+      <i class="fas fa-user text-green-500 w-4 text-center text-xs"></i>
+      <span>Paciente</span>
+      <i *ngIf="roleFilter() === 'paciente'" class="fas fa-check ml-auto text-green-500 text-xs"></i>
+    </label>
+
+    <label class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors">
+      <input type="radio" name="roleFilter" class="w-4 h-4 text-blue-600"
+             [checked]="roleFilter() === 'investigador'" (change)="setRoleFilter('investigador')">
+      <i class="fas fa-flask text-yellow-600 w-4 text-center text-xs"></i>
+      <span>Investigador</span>
+      <i *ngIf="roleFilter() === 'investigador'" class="fas fa-check ml-auto text-yellow-600 text-xs"></i>
+    </label>
+
+    <div *ngIf="activeFilterCount() > 0" class="border-t border-gray-100 mt-1 px-4 pt-2">
+      <button class="w-full text-left text-xs text-red-500 hover:text-red-700 transition-colors py-1"
+              (click)="clearFilters()">
+        <i class="fas fa-times mr-1"></i> Limpiar filtro
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="hero-left">
+    <div class="hero-icon"><i class="fas fa-users"></i></div>
+    <div class="hero-text">
+      <h1>Usuarios</h1>
+      <p>Gestiona las cuentas de usuario del sistema</p>
+    </div>
+  </div>
+  <button (click)="showCreate.set(true)"
+          class="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors w-full sm:w-auto"
+          style="background-color: var(--accent)">
+    <i class="fas fa-user-plus"></i>
+    Nuevo usuario
+  </button>
+</div>
+
+<!-- TABLE CARD -->
+<div class="px-4 pb-6">
+  <div class="data-table-wrapper">
+
+    <!-- Toolbar -->
+    <div class="p-4 border-b border-gray-100">
+      <div class="flex gap-3">
+
+        <!-- Buscador -->
+        <div class="relative flex-1">
+          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <i class="fas fa-search text-gray-400 text-sm"></i>
+          </div>
+          <input type="text"
+                 class="block w-full py-2 pl-10 pr-8 text-sm text-gray-900 border border-gray-200 rounded-lg bg-gray-50 outline-none focus:border-blue-400 transition-colors"
+                 placeholder="Buscar por nombre o correo..."
+                 [value]="searchTerm()"
+                 (input)="onSearchInput($any($event.target).value)">
+          <button *ngIf="searchTerm()"
+                  class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 transition-colors"
+                  (click)="clearSearch()" type="button">
+            <i class="fas fa-times text-xs"></i>
+          </button>
+        </div>
+
+        <!-- Botón filtros -->
+        <button type="button"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 whitespace-nowrap"
+                (click)="toggleFilters($event)">
+          <i class="fas fa-filter text-gray-400 text-xs"></i>
+          <span>Filtros</span>
+          <span *ngIf="activeFilterCount() > 0"
+                class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-blue-600 rounded-full">
+            {{ activeFilterCount() }}
+          </span>
+          <i class="fas fa-chevron-down text-gray-400" style="font-size:0.6rem"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading()" class="table-empty">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Cargando usuarios...</p>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="!isLoading() && errorMsg()" class="table-empty">
+      <i class="fas fa-exclamation-triangle" style="color:#DC2626"></i>
+      <p style="color:#DC2626">{{ errorMsg() }}</p>
+    </div>
+
+    <!-- Table -->
+    <div *ngIf="!isLoading() && !errorMsg()" class="overflow-x-auto">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th><i class="fas fa-user"></i> Usuario</th>
+            <th><i class="fas fa-envelope"></i> Correo</th>
+            <th><i class="fas fa-user-tag"></i> Rol</th>
+            <th><i class="fas fa-toggle-on"></i> Estado</th>
+            <th><i class="fas fa-calendar-alt"></i> Registro</th>
+            <th><i class="fas fa-cog"></i> Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="users().length === 0">
+            <td colspan="6">
+              <div class="table-empty">
+                <i class="fas fa-users"></i>
+                <p>No se encontraron usuarios{{ roleFilter() ? ' con ese filtro' : '' }}.</p>
+              </div>
+            </td>
+          </tr>
+          <tr *ngFor="let user of users(); trackBy: trackById">
+            <td>
+              <div class="flex items-center gap-2.5">
+                <div class="user-avatar-sm">
+                  <img *ngIf="user.avatar_url" [src]="user.avatar_url" class="user-avatar-sm-img" alt="">
+                  <span *ngIf="!user.avatar_url">{{ userInitials(user) }}</span>
+                </div>
+                <div>
+                  <div class="td-main flex items-center gap-1.5">
+                    {{ user.first_name || user.last_name ? (user.first_name + ' ' + user.last_name).trim() : user.username }}
+                    <span *ngIf="user.is_superuser" class="text-amber-500" title="Superusuario">
+                      <i class="fas fa-crown text-xs"></i>
+                    </span>
+                  </div>
+                  <div class="td-muted" style="font-size:0.72rem">@{{ user.username }}</div>
+                </div>
+              </div>
+            </td>
+            <td class="td-muted">{{ user.email }}</td>
+            <td>
+              <span [ngClass]="roleChipClass(user.role)">
+                <i class="fas fa-stethoscope" *ngIf="user.role === 'medico'"></i>
+                <i class="fas fa-user"        *ngIf="user.role === 'paciente'"></i>
+                <i class="fas fa-flask"       *ngIf="user.role === 'investigador'"></i>
+                {{ roleLabel(user.role) }}
+              </span>
+            </td>
+            <td>
+              <span [ngClass]="user.is_active ? 'chip chip-green' : 'chip chip-red'">
+                <i class="fas" [class.fa-check-circle]="user.is_active" [class.fa-ban]="!user.is_active"></i>
+                {{ user.is_active ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td class="td-muted">{{ user.date_joined | formatDate }}</td>
+            <td>
+              <div *ngIf="!user.is_superuser" class="flex items-center gap-1">
+                <button class="text-blue-600 w-8 h-8 rounded-md flex items-center justify-center hover:bg-blue-50 transition-colors border-0 outline-none cursor-pointer"
+                        (click)="editingUser.set(user)" title="Editar usuario">
+                  <i class="fas fa-edit text-sm"></i>
+                </button>
+                <button *ngIf="user.is_active"
+                        class="text-red-500 w-8 h-8 rounded-md flex items-center justify-center hover:bg-red-50 transition-colors border-0 outline-none cursor-pointer"
+                        (click)="deactivate(user)" title="Desactivar cuenta">
+                  <i class="fas fa-ban text-sm"></i>
+                </button>
+              </div>
+              <span *ngIf="user.is_superuser" class="td-muted">—</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginación -->
+    <app-pagination
+      *ngIf="!isLoading()"
+      [currentPage]="currentPage()"
+      [totalCount]="totalCount()"
+      [pageSize]="20"
+      itemLabel="usuarios"
+      (pageChange)="loadUsers($event)">
+    </app-pagination>
+
+  </div>
+</div>

@@ -1,0 +1,206 @@
+.upload-card {
+  max-width: 560px;
+}
+
+.upload-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.submit-btn {
+  margin-top: 1.5rem;
+  align-self: flex-start;
+}
+
+.results-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 1.5rem;
+}
+
+.ecg-card { min-width: 0; }
+.stats-card { height: fit-content; }
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.9rem;
+}
+.info-row:last-child { border-bottom: none; }
+.info-row span { color: var(--text-secondary); }
+.info-row strong { font-weight: 600; color: var(--text-primary); }
+
+/* ── patient selector ─────────────────────────────────────────────────── */
+.patient-group {
+  padding-bottom: 1rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.optional-tag {
+  margin-left: 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--app-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 1px 6px;
+  vertical-align: middle;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Selected chip */
+.patient-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #e8f4fd;
+  border: 1px solid var(--border-hover);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.patient-chip i.fa-user-check { color: var(--success-color); }
+
+.patient-chip-hc {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.patient-chip-clear {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 0 2px;
+  margin-left: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
+}
+.patient-chip-clear:hover { color: var(--warning-color); }
+
+/* Search wrapper */
+.patient-search-wrapper {
+  position: relative;
+}
+
+.patient-search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  pointer-events: none;
+}
+
+.patient-search-input {
+  width: 100%;
+  padding: 0.6rem 0.75rem 0.6rem 2.25rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.patient-search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(23, 74, 122, 0.08);
+}
+
+/* Dropdown */
+.patient-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+  z-index: 50;
+  overflow: hidden;
+}
+
+.patient-option {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: 0.6rem 0.875rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s;
+  border-bottom: 1px solid var(--border-color);
+}
+.patient-option:last-child { border-bottom: none; }
+.patient-option:hover { background: var(--app-bg); }
+
+.patient-option-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.patient-option-meta {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.patient-no-results {
+  padding: 0.75rem 0.875rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* badge patient en resultados */
+.card-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.badge-patient {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--accent);
+  background: #e8f4fd;
+  border: 1px solid var(--border-hover);
+  border-radius: 5px;
+  padding: 2px 8px;
+}
+
+@media (max-width: 1100px) {
+  .results-layout {
+    grid-template-columns: 1fr;
+  }
+  .upload-card {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .submit-btn { width: 100%; justify-content: center; }
+}

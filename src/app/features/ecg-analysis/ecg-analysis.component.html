@@ -1,0 +1,180 @@
+<!-- ANALYSIS OVERLAY -->
+<div *ngIf="isAnalyzing()" class="analysis-overlay">
+  <div class="analysis-overlay-content">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>{{ statusMessage() }}</p>
+    <small>Esto puede tomar unos segundos</small>
+  </div>
+</div>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="hero-left">
+    <div class="hero-icon">
+      <i class="fas" [class.fa-clipboard-check]="isEvaluation()" [class.fa-hospital-symbol]="!isEvaluation()"></i>
+    </div>
+    <div class="hero-text">
+      <h1>{{ isEvaluation() ? 'Análisis Con Anotaciones' : 'Análisis Clínico — Producción' }}</h1>
+      <p *ngIf="isEvaluation()">Valida el rendimiento del modelo contra etiquetas médicas reales</p>
+      <p *ngIf="!isEvaluation()">Detección y clasificación automática de arritmias sin anotaciones previas</p>
+    </div>
+  </div>
+</div>
+
+<!-- UPLOAD FORM -->
+<div *ngIf="!hasResult()">
+  <div class="card upload-card">
+    <div class="card-header">
+      <h2 class="card-title">
+        <i class="fas fa-upload"></i>
+        {{ isEvaluation() ? 'Cargar Registro Con Anotaciones' : 'Cargar Señal de Paciente' }}
+      </h2>
+    </div>
+
+    <div class="upload-body">
+
+      <!-- PATIENT SELECTOR -->
+      <div class="file-group patient-group">
+        <label class="file-label">
+          <i class="fas fa-user"></i> Paciente
+          <span class="optional-tag">Opcional</span>
+        </label>
+
+        @if (selectedPatient()) {
+          <div class="patient-chip">
+            <i class="fas fa-user-check"></i>
+            <span>{{ selectedPatient()!.nombre }} {{ selectedPatient()!.apellido }}</span>
+            @if (selectedPatient()!.historia_clinica) {
+              <span class="patient-chip-hc">HC: {{ selectedPatient()!.historia_clinica }}</span>
+            }
+            <button type="button" class="patient-chip-clear" (click)="clearPatient()" title="Quitar paciente">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        }
+
+        @if (!selectedPatient()) {
+          <div class="patient-search-wrapper">
+            <i class="fas patient-search-icon"
+               [class.fa-search]="!isSearchingPatient()"
+               [class.fa-spinner]="isSearchingPatient()"
+               [class.fa-spin]="isSearchingPatient()"></i>
+            <input
+              type="text"
+              class="patient-search-input"
+              placeholder="Buscar paciente por nombre o apellido..."
+              [value]="patientQuery()"
+              (input)="onPatientSearch($any($event.target).value)"
+              (blur)="onPatientBlur()"
+              autocomplete="off" />
+
+            @if (showPatientDropdown()) {
+              <div class="patient-dropdown">
+                @if (patientResults().length > 0) {
+                  @for (p of patientResults(); track p.id) {
+                    <button type="button" class="patient-option" (mousedown)="selectPatient(p)">
+                      <span class="patient-option-name">{{ p.nombre }} {{ p.apellido }}</span>
+                      @if (p.historia_clinica) {
+                        <span class="patient-option-meta">HC: {{ p.historia_clinica }}</span>
+                      }
+                    </button>
+                  }
+                } @else {
+                  <div class="patient-no-results">
+                    <i class="fas fa-user-slash"></i> Sin resultados para "{{ patientQuery() }}"
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- .dat -->
+      <div class="file-group">
+        <label class="file-label">
+          <i class="fas fa-wave-square"></i> Señal ECG (.dat) <span class="required">*</span>
+        </label>
+        <label class="file-drop" [class.has-file]="datFile()">
+          <input type="file" accept=".dat" (change)="onFileChange($event, 'dat')" class="file-input-hidden">
+          <i class="fas" [class.fa-file-upload]="!datFile()" [class.fa-check-circle]="datFile()"></i>
+          <span>{{ datFile()?.name ?? 'Seleccionar archivo .dat' }}</span>
+        </label>
+      </div>
+
+      <!-- .hea -->
+      <div class="file-group">
+        <label class="file-label">
+          <i class="fas fa-file-alt"></i> Cabecera (.hea) <span class="required">*</span>
+        </label>
+        <label class="file-drop" [class.has-file]="heaFile()">
+          <input type="file" accept=".hea" (change)="onFileChange($event, 'hea')" class="file-input-hidden">
+          <i class="fas" [class.fa-file-upload]="!heaFile()" [class.fa-check-circle]="heaFile()"></i>
+          <span>{{ heaFile()?.name ?? 'Seleccionar archivo .hea' }}</span>
+        </label>
+      </div>
+
+      <!-- .atr (evaluation only) -->
+      <ng-container *ngIf="isEvaluation()">
+        <div class="file-group">
+          <label class="file-label">
+            <i class="fas fa-tags"></i> Anotaciones (.atr) <span class="required">*</span>
+          </label>
+          <label class="file-drop" [class.has-file]="atrFile()">
+            <input type="file" accept=".atr" (change)="onFileChange($event, 'atr')" class="file-input-hidden">
+            <i class="fas" [class.fa-file-upload]="!atrFile()" [class.fa-check-circle]="atrFile()"></i>
+            <span>{{ atrFile()?.name ?? 'Seleccionar archivo .atr' }}</span>
+          </label>
+        </div>
+        <div class="info-box info-box--warning">
+          <i class="fas fa-exclamation-triangle"></i>
+          <div>
+            <strong>Los 3 archivos deben tener el mismo nombre base</strong>
+            <span>Ejemplo: 100.dat, 100.hea, 100.atr</span>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="!isEvaluation()">
+        <div class="info-box info-box--info">
+          <i class="fas fa-info-circle"></i>
+          <div>
+            <strong>Procesamiento Automático</strong>
+            <span>El sistema detectará y clasificará todos los latidos sin anotaciones previas.</span>
+          </div>
+        </div>
+      </ng-container>
+
+      <div *ngIf="validationError()" class="validation-error">
+        <i class="fas fa-exclamation-circle"></i> {{ validationError() }}
+      </div>
+      <div *ngIf="errorMessage()" class="validation-error" style="margin-top: 0.75rem;">
+        <i class="fas fa-times-circle"></i> {{ errorMessage() }}
+      </div>
+
+      <button (click)="submit()" [disabled]="isAnalyzing()" class="action-btn submit-btn">
+        <i class="fas fa-microscope"></i>
+        {{ isEvaluation() ? 'Analizar Registro' : 'Clasificar Señal' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS — delegados a sub-componentes según modo -->
+<ng-container *ngIf="hasResult()">
+  <app-analysis-results-annotated
+    *ngIf="isEvaluation()"
+    [result]="patientResult()"
+    [patient]="selectedPatient()"
+    [plotUrl]="ecgPlotUrl()"
+    (reset)="resetForm()">
+  </app-analysis-results-annotated>
+
+  <app-analysis-results-production
+    *ngIf="!isEvaluation()"
+    [result]="productionResult()"
+    [patient]="selectedPatient()"
+    [plotUrl]="ecgPlotUrl()"
+    (reset)="resetForm()">
+  </app-analysis-results-production>
+</ng-container>

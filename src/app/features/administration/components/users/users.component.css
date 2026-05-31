@@ -1,0 +1,23 @@
+/* Usa page-hero, data-table-wrapper, data-table, chip, table-empty de styles.css global */
+
+/* Avatar en tabla */
+.user-avatar-sm {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: white;
+  border: 2px solid #E2E8F0;
+}
+.user-avatar-sm-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

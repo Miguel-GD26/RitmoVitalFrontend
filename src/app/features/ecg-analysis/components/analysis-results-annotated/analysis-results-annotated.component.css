@@ -1,0 +1,104 @@
+.results-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 1.5rem;
+}
+
+.ecg-card { min-width: 0; }
+.stats-card { height: fit-content; }
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.9rem;
+}
+.info-row:last-child { border-bottom: none; }
+.info-row span { color: var(--text-secondary); }
+.info-row strong { font-weight: 600; color: var(--text-primary); }
+
+.accuracy-highlight { color: var(--success-color); font-size: 1rem; }
+
+/* ── beats table ─────────────────────────────────────────────────────── */
+.beats-section {
+  margin-top: 1.25rem;
+  border-top: 1px solid var(--border-color);
+  padding-top: 1rem;
+}
+
+.beats-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.625rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.beats-grid-header,
+.beats-grid-row {
+  display: grid;
+  grid-template-columns: 50px 70px 70px 1fr 1fr 80px 80px;
+  align-items: center;
+  padding: 0 0.5rem;
+  gap: 0.25rem;
+}
+
+.beats-grid-header {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  background: var(--app-bg);
+  border-radius: 6px 6px 0 0;
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.beats-viewport {
+  height: 400px;
+  border: 1px solid var(--border-color);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  background: var(--card-bg);
+}
+
+.beats-grid-row {
+  height: 36px;
+  font-size: 0.8rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  transition: background 0.1s;
+}
+.beats-grid-row:hover { background: var(--app-bg); }
+.beats-grid-row.row-mismatch { background: #fff5f5; }
+.beats-grid-row.row-mismatch:hover { background: #fee2e2; }
+
+.mono { font-family: monospace; font-size: 0.78rem; color: var(--text-secondary); }
+
+.beat-chip {
+  font-size: 0.65rem;
+  padding: 1px 6px;
+}
+
+.chip-red {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+}
+
+.text-warning { color: #d97706; font-size: 0.75rem; }
+.text-muted   { color: var(--text-secondary); font-size: 0.8rem; }
+
+@media (max-width: 1100px) {
+  .results-layout { grid-template-columns: 1fr; }
+  .beats-grid-header,
+  .beats-grid-row {
+    grid-template-columns: 40px 60px 60px 1fr 1fr 70px 70px;
+  }
+}

@@ -1,0 +1,215 @@
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="hero-left">
+    <div class="hero-icon"><i class="fas fa-history"></i></div>
+    <div class="hero-text">
+      <h1>Historial de Análisis</h1>
+      <p>Registro de todos los análisis ECG realizados</p>
+    </div>
+  </div>
+  <div class="hero-actions">
+    <button *ngIf="showExportBtn()"
+            class="action-btn secondary export-btn"
+            [disabled]="isExporting() || isLoading()"
+            (click)="exportCsv()"
+            title="Exportar todo el historial como CSV">
+      <i class="fas"
+         [class.fa-file-export]="!isExporting()"
+         [class.fa-spinner]="isExporting()"
+         [class.fa-spin]="isExporting()"></i>
+      {{ isExporting() ? 'Exportando...' : 'Exportar CSV' }}
+    </button>
+  </div>
+</div>
+
+<!-- TABLE -->
+<div class="px-4 pb-6">
+  <div class="data-table-wrapper">
+
+    <!-- Toolbar: búsqueda + filtros avanzados -->
+    <div class="p-4 border-b border-gray-100">
+      <div class="flex gap-3">
+
+        <!-- Buscador flex-1 -->
+        <div class="relative flex-1">
+          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <i class="fas fa-search text-gray-400 text-sm"></i>
+          </div>
+          <input type="text"
+                 class="block w-full py-2 pl-10 pr-8 text-sm text-gray-900 border border-gray-200 rounded-lg bg-gray-50 outline-none focus:border-blue-400 transition-colors"
+                 placeholder="Buscar por paciente o nombre de registro..."
+                 [value]="searchTerm()"
+                 (input)="onSearchInput($any($event.target).value)">
+          <button *ngIf="searchTerm()"
+                  class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 transition-colors border-0 outline-none cursor-pointer"
+                  (click)="clearSearch()" type="button" title="Limpiar búsqueda">
+            <i class="fas fa-times text-xs"></i>
+          </button>
+        </div>
+
+        <!-- Botón filtros avanzados -->
+        <button type="button"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 whitespace-nowrap"
+                (click)="toggleFilters($event)">
+          <i class="fas fa-filter text-gray-400 text-xs"></i>
+          <span>Filtros</span>
+          <span *ngIf="activeFiltersCount() > 0"
+                class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-blue-600 rounded-full">
+            {{ activeFiltersCount() }}
+          </span>
+          <i class="fas fa-chevron-down text-gray-400" style="font-size:0.6rem"></i>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- Panel de filtros (position:fixed para escapar overflow:hidden del wrapper) -->
+    <div *ngIf="showFilters()"
+         class="fixed z-[9999] w-60 bg-white rounded-lg border border-gray-200 shadow-xl"
+         [style.top.px]="filtersPos().top"
+         [style.left.px]="filtersPos().left"
+         (click)="$event.stopPropagation()">
+
+      <!-- Cabecera si hay filtros activos -->
+      <div *ngIf="activeFiltersCount() > 0"
+           class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+        <span class="text-xs font-medium text-gray-600">Filtros activos: {{ activeFiltersCount() }}</span>
+        <button class="text-xs text-blue-600 hover:text-blue-800 font-medium border-0 outline-none cursor-pointer"
+                (click)="clearFilters()">Limpiar todo</button>
+      </div>
+
+      <div class="py-2">
+        <div class="px-4 pt-1 pb-1">
+          <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Modo</span>
+        </div>
+        <label class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors">
+          <input type="radio" name="modoFilter"
+                 class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                 [checked]="modoFilter() === 'produccion'"
+                 (change)="setModoFilter('produccion')">
+          <i class="fas fa-microchip text-green-500 w-4 text-center text-xs"></i>
+          <span>Producción</span>
+          <i *ngIf="modoFilter() === 'produccion'" class="fas fa-check ml-auto text-green-500 text-xs"></i>
+        </label>
+        <label class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors">
+          <input type="radio" name="modoFilter"
+                 class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                 [checked]="modoFilter() === 'anotado'"
+                 (change)="setModoFilter('anotado')">
+          <i class="fas fa-tag text-blue-500 w-4 text-center text-xs"></i>
+          <span>Con Anotaciones</span>
+          <i *ngIf="modoFilter() === 'anotado'" class="fas fa-check ml-auto text-blue-500 text-xs"></i>
+        </label>
+        <div *ngIf="modoFilter()" class="border-t border-gray-100 mt-1 px-4 pt-2">
+          <button class="w-full text-left text-xs text-red-500 hover:text-red-700 transition-colors py-1 border-0 outline-none cursor-pointer"
+                  (click)="clearFilters()">
+            <i class="fas fa-times mr-1"></i> Limpiar filtro
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading()" class="table-empty">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Cargando historial...</p>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="errorMessage() && !isLoading()" class="table-empty">
+      <i class="fas fa-exclamation-triangle" style="color:#DC2626"></i>
+      <p style="color:#DC2626">{{ errorMessage() }}</p>
+    </div>
+
+    <!-- Table -->
+    <div *ngIf="!isLoading() && !errorMessage()" class="overflow-x-auto">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th><i class="fas fa-hashtag"></i> ID</th>
+            <th><i class="fas fa-file-medical"></i> Registro</th>
+            <th><i class="fas fa-tag"></i> Modo</th>
+            <th *ngIf="!isPaciente()"><i class="fas fa-user"></i> Paciente</th>
+            <th *ngIf="showMedicoColumn()"><i class="fas fa-stethoscope"></i> Médico</th>
+            <th><i class="fas fa-heartbeat"></i> Latidos</th>
+            <th><i class="fas fa-chart-line"></i> Accuracy</th>
+            <th><i class="fas fa-calendar-alt"></i> Fecha</th>
+            <th class="text-center"><i class="fas fa-download"></i> Reporte</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="analyses().length === 0">
+            <td [attr.colspan]="isPaciente() ? 7 : showMedicoColumn() ? 9 : 8">
+              <div class="table-empty">
+                <i class="fas fa-history"></i>
+                <p>No hay análisis registrados aún.</p>
+              </div>
+            </td>
+          </tr>
+          <tr *ngFor="let a of analyses(); trackBy: trackById">
+            <td class="td-muted font-mono text-xs">#{{ a.id }}</td>
+            <td>
+              <span class="td-main font-mono text-sm">{{ a.record_name || '—' }}</span>
+            </td>
+            <td>
+              <span class="chip"
+                    [class.chip-blue]="a.modo === 'anotado'"
+                    [class.chip-green]="a.modo === 'produccion'"
+                    [class.chip-gray]="a.modo === 'demo'">
+                <i class="fas fa-circle" style="font-size:6px"></i>
+                {{ a.modo_display }}
+              </span>
+            </td>
+            <td *ngIf="!isPaciente()">
+              @if (a.paciente_nombre) {
+                <span class="chip chip-blue" style="font-weight:500">
+                  <i class="fas fa-user" style="font-size:9px"></i>
+                  {{ a.paciente_nombre }}
+                </span>
+              } @else {
+                <span class="td-muted">—</span>
+              }
+            </td>
+            <td *ngIf="showMedicoColumn()">
+              <span class="td-muted text-xs">{{ a.usuario_nombre }}</span>
+            </td>
+            <td class="font-mono text-sm">{{ a.latidos_procesados | number }}</td>
+            <td>
+              <span *ngIf="a.accuracy !== null" class="chip chip-green">
+                {{ a.accuracy | number:'1.1-1' }}%
+              </span>
+              <span *ngIf="a.accuracy === null" class="chip chip-gray">N/A</span>
+            </td>
+            <td class="td-muted text-xs">{{ a.fecha | formatDate }}</td>
+            <td>
+              <div class="flex justify-center">
+                <button class="tbl-action-btn"
+                        [disabled]="isDownloading() === a.uuid"
+                        (click)="downloadPdf(a.uuid)"
+                        title="Descargar reporte PDF">
+                  <i class="fas"
+                     [class.fa-file-pdf]="isDownloading() !== a.uuid"
+                     [class.fa-spinner]="isDownloading() === a.uuid"
+                     [class.fa-spin]="isDownloading() === a.uuid"
+                     style="color:#DC2626"></i>
+                  PDF
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginación -->
+    <app-pagination
+      *ngIf="!isLoading()"
+      [currentPage]="currentPage()"
+      [totalCount]="totalCount()"
+      [pageSize]="20"
+      itemLabel="análisis"
+      (pageChange)="loadPage($event)">
+    </app-pagination>
+
+  </div>
+</div>

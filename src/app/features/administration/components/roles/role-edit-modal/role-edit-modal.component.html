@@ -1,0 +1,116 @@
+<app-modal size="7xl" (closed)="closed.emit()">
+  <ng-container modal-title>
+    <i class="fas fa-shield-alt"></i> Editar Permisos del Rol
+  </ng-container>
+
+  <ng-container modal-body>
+    <div class="modal-two-col">
+
+      <!-- LEFT: Info del rol -->
+      <div class="info-panel">
+        <div class="info-panel-inner">
+
+          <!-- Badge del rol -->
+          <div class="role-badge-wrap">
+            <span [ngClass]="roleChipClass()" class="role-name-chip">
+              <i class="fas fa-shield-alt"></i> {{ roleLabel() }}
+            </span>
+          </div>
+
+          <!-- Tarjetas de stats -->
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-blue">
+              <i class="fas fa-users"></i>
+            </div>
+            <div>
+              <div class="stat-value">{{ role().user_count }}</div>
+              <div class="stat-label">Usuario{{ role().user_count !== 1 ? 's' : '' }} asignado{{ role().user_count !== 1 ? 's' : '' }}</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-purple">
+              <i class="fas fa-key"></i>
+            </div>
+            <div>
+              <div class="stat-value">{{ selectedCount() }}<span class="stat-total">/{{ totalCount() }}</span></div>
+              <div class="stat-label">Permisos seleccionados</div>
+            </div>
+          </div>
+
+          <!-- Nota informativa -->
+          <div class="info-note">
+            <i class="fas fa-info-circle"></i>
+            Los permisos afectan a todos los usuarios con este rol.
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Permisos -->
+      <div class="perms-panel">
+
+        <!-- Barra de búsqueda + acciones -->
+        <div class="perms-toolbar">
+          <div class="relative flex-1">
+            <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" style="font-size:0.75rem"></i>
+            <input type="text" class="perm-search" placeholder="Buscar permiso..."
+                   [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+          </div>
+          <button type="button" class="perms-action-btn" (click)="selectAll()">
+            <i class="fas fa-check-double"></i> Seleccionar {{ searchTerm() ? 'visibles' : 'todos' }}
+          </button>
+          <button type="button" class="perms-action-btn perms-action-clear" (click)="clearAll()">
+            <i class="fas fa-times"></i> Limpiar
+          </button>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="isLoadingPerms()" class="perms-loading">
+          <i class="fas fa-spinner fa-spin"></i> Cargando permisos...
+        </div>
+
+        <!-- Sin resultados -->
+        <div *ngIf="!isLoadingPerms() && filteredGroups().length === 0" class="perms-empty">
+          <i class="fas fa-search"></i>
+          <span>Sin coincidencias para "{{ searchTerm() }}"</span>
+        </div>
+
+        <!-- Lista de grupos -->
+        <div *ngIf="!isLoadingPerms()" class="perms-list">
+          <div *ngFor="let group of filteredGroups()" class="perm-group">
+            <div class="perm-group-title">
+              <i class="fas fa-layer-group"></i> {{ group.label }}
+            </div>
+            <div class="perm-items-grid">
+              <label *ngFor="let perm of group.permissions"
+                     class="perm-item" [class.selected]="isSelected(perm.id)">
+                <input type="checkbox" class="perm-checkbox"
+                       [checked]="isSelected(perm.id)"
+                       (change)="toggle(perm.id)">
+                <div class="perm-item-body">
+                  <span class="perm-name">{{ perm.name }}</span>
+                  <span class="perm-codename">{{ perm.codename }}</span>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </ng-container>
+
+  <ng-container modal-footer>
+    <button type="button" (click)="closed.emit()"
+            class="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+      Cancelar
+    </button>
+    <button type="button" (click)="submit()" [disabled]="isSaving() || isLoadingPerms()"
+            class="px-5 py-2 text-sm font-medium text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            style="background-color: var(--accent)">
+      <i class="fas fa-spinner fa-spin" *ngIf="isSaving()"></i>
+      <i class="fas fa-save" *ngIf="!isSaving()"></i>
+      {{ isSaving() ? 'Guardando...' : 'Guardar permisos' }}
+    </button>
+  </ng-container>
+</app-modal>

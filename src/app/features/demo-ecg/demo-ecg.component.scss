@@ -1,0 +1,14 @@
+.demo-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 1.5rem;
+}
+
+.ecg-card { min-width: 0; }
+.results-card { height: fit-content; }
+
+@media (max-width: 1100px) {
+  .demo-layout {
+    grid-template-columns: 1fr;
+  }
+}

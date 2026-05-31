@@ -1,0 +1,98 @@
+.page-header { margin-bottom: 1.5rem; }
+.page-title { font-size: 1.5rem; font-weight: 700; color: var(--text-primary, #1a365d); margin: 0 0 0.25rem; }
+.page-subtitle { color: var(--text-secondary, #666); margin: 0; font-size: 0.9rem; }
+
+.loading-state, .empty-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0.75rem; padding: 3rem; color: var(--text-secondary, #888); text-align: center;
+}
+
+.error-banner {
+  background: #fff5f5; border-left: 4px solid #e53e3e; color: #c53030;
+  padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem;
+}
+
+/* Stats grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  background: white; border-radius: 12px; padding: 1.25rem;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+}
+.stat-card--blue { border-left: 4px solid #2c7be5; }
+.stat-card--green { border-left: 4px solid #38a169; }
+.stat-card--purple { border-left: 4px solid #805ad5; }
+.stat-card--orange { border-left: 4px solid #dd6b20; }
+
+.stat-card-icon { font-size: 1.5rem; opacity: 0.7; }
+.stat-card--blue .stat-card-icon { color: #2c7be5; }
+.stat-card--green .stat-card-icon { color: #38a169; }
+.stat-card--purple .stat-card-icon { color: #805ad5; }
+.stat-card--orange .stat-card-icon { color: #dd6b20; }
+
+.stat-card-label { font-size: 0.78rem; color: #888; margin: 0 0 0.25rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.stat-card-value { font-size: 1.6rem; font-weight: 700; color: #1a365d; margin: 0; }
+
+/* Dashboard row */
+.dashboard-row {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 1rem;
+}
+@media (max-width: 768px) { .dashboard-row { grid-template-columns: 1fr; } }
+
+/* Card */
+.card { background: white; border-radius: 12px; box-shadow: 0 1px 6px rgba(0,0,0,0.08); overflow: hidden; }
+.card-header { padding: 1rem 1.25rem; border-bottom: 1px solid #eef0f5; display: flex; align-items: center; justify-content: space-between; }
+.card-title { margin: 0; font-size: 1rem; font-weight: 600; color: #1a365d; }
+.card-header-link { font-size: 0.85rem; color: #2c7be5; text-decoration: none; }
+.card-header-link:hover { text-decoration: underline; }
+
+/* Breakdown */
+.breakdown-list { padding: 1rem 1.25rem; display: flex; flex-direction: column; gap: 0.9rem; }
+.breakdown-item { display: flex; align-items: center; gap: 0.75rem; }
+.breakdown-label { width: 140px; font-size: 0.85rem; color: #444; flex-shrink: 0; }
+.breakdown-label i { margin-right: 0.4rem; color: #2c7be5; }
+.breakdown-bar-container { flex: 1; height: 8px; background: #eef0f5; border-radius: 4px; overflow: hidden; }
+.breakdown-bar { height: 100%; background: linear-gradient(90deg, #2c7be5, #667eea); border-radius: 4px; transition: width 0.4s; }
+.breakdown-count { font-size: 0.85rem; font-weight: 600; color: #1a365d; min-width: 24px; text-align: right; }
+
+/* Recent */
+.recent-list { padding: 0.5rem 1.25rem 1rem; display: flex; flex-direction: column; gap: 0.6rem; }
+.recent-item { padding: 0.6rem 0.75rem; background: #f8fafc; border-radius: 8px; }
+.recent-item-main { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.2rem; }
+.recent-record { font-weight: 600; font-size: 0.9rem; color: #1a365d; }
+.recent-item-meta { font-size: 0.78rem; color: #888; display: flex; justify-content: space-between; }
+.recent-accuracy { font-weight: 600; color: #38a169; }
+
+/* Badges */
+.badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600; }
+.badge-demo { background: #ebf8ff; color: #2b6cb0; }
+.badge-anotado { background: #f0fff4; color: #276749; }
+.badge-produccion { background: #fff5f0; color: #c05621; }
+
+/* Quick-access cards */
+.quick-card {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1.25rem; text-decoration: none; color: inherit;
+  transition: box-shadow 0.15s, transform 0.15s; cursor: pointer;
+}
+.quick-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); transform: translateY(-1px); }
+.quick-card-icon {
+  width: 2.75rem; height: 2.75rem; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; flex-shrink: 0;
+}
+.quick-card-title { font-size: 0.95rem; font-weight: 600; color: #1a365d; margin: 0 0 0.15rem; }
+.quick-card-sub { font-size: 0.8rem; color: #888; margin: 0; }
+
+@media (max-width: 480px) {
+  .breakdown-label { width: 100px; font-size: 0.78rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}

@@ -1,0 +1,41 @@
+:host {
+  --sidebar-width: 280px;
+  --sidebar-collapsed-width: 72px;
+  --main-bg: #F5F7FA;
+}
+
+.app-container {
+  min-height: 100vh;
+  background-color: var(--main-bg);
+}
+
+.main-content {
+  margin-left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out;
+}
+
+.content-area {
+  padding: 1.5rem;
+  flex-grow: 1;
+}
+
+.app-container.sidebar-collapsed .main-content {
+  margin-left: var(--sidebar-collapsed-width);
+  width: calc(100% - var(--sidebar-collapsed-width));
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  .content-area {
+    padding: 1rem;
+    padding-top: calc(64px + 1rem);
+  }
+}

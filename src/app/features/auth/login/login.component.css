@@ -1,0 +1,523 @@
+/* RitmoVital Login — V3 Editorial Minimal · Dark · IBM Plex Sans */
+
+/* ── design tokens ──────────────────────────────────────────────────────── */
+:host {
+  --rv-bg:           #0a0f1c;
+  --rv-border:       rgba(255, 255, 255, 0.10);
+  --rv-border-hi:    rgba(255, 255, 255, 0.18);
+  --rv-text:         #f1f5f9;
+  --rv-text-dim:     rgba(241, 245, 249, 0.62);
+  --rv-text-mute:    rgba(241, 245, 249, 0.42);
+  --rv-accent:       #22d3ee;
+  --rv-font:         'IBM Plex Sans', system-ui, sans-serif;
+  --rv-mono:         'IBM Plex Mono', ui-monospace, monospace;
+  display: block;
+}
+
+/* ── full-screen shell ──────────────────────────────────────────────────── */
+.rv-login {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background: var(--rv-bg);
+  color: var(--rv-text);
+  font-family: var(--rv-font);
+  overflow: hidden;
+}
+
+/* ── top bar ────────────────────────────────────────────────────────────── */
+.rv-top-bar {
+  position: absolute;
+  top: 28px;
+  left: 56px;
+  right: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 10;
+}
+
+.rv-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--rv-text);
+  font-family: var(--rv-font);
+  font-weight: 600;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.rv-ekg-glyph {
+  width: 34px;
+  height: 18px;
+  color: var(--rv-accent);
+  filter: drop-shadow(0 0 8px var(--rv-accent));
+  flex-shrink: 0;
+}
+
+.rv-accent-text {
+  color: var(--rv-accent);
+}
+
+.rv-tagline {
+  font-family: var(--rv-mono);
+  font-size: 11px;
+  color: var(--rv-text-mute);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* ── two-column main ────────────────────────────────────────────────────── */
+.rv-main {
+  position: absolute;
+  top: 110px;
+  left: 56px;
+  right: 56px;
+  bottom: 140px;
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+/* ── LEFT — editorial copy ──────────────────────────────────────────────── */
+.rv-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.rv-heading {
+  font-family: var(--rv-font);
+  font-size: clamp(48px, 6.5vw, 84px);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  font-weight: 400;
+  margin: 0;
+  color: var(--rv-text);
+}
+
+.rv-heading-em {
+  font-style: italic;
+  color: var(--rv-accent);
+  font-weight: 400;
+}
+
+.rv-description {
+  margin-top: 28px;
+  max-width: 380px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--rv-text-dim);
+  font-family: var(--rv-font);
+}
+
+/* ── RIGHT — form ───────────────────────────────────────────────────────── */
+.rv-right {
+  max-width: 380px;
+  justify-self: center;
+  width: 100%;
+}
+
+.rv-form-label-top {
+  font-family: var(--rv-mono);
+  font-size: 11px;
+  color: var(--rv-text-mute);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+/* ── underline floating field ───────────────────────────────────────────── */
+.rv-field {
+  margin-bottom: 8px;
+}
+
+.rv-field-ul {
+  position: relative;
+  border-bottom: 1px solid var(--rv-border-hi);
+  transition: border-color 0.18s ease;
+}
+
+.rv-field-ul:focus-within {
+  border-bottom: 1.5px solid var(--rv-accent);
+}
+
+.rv-field-ul input {
+  width: 100%;
+  height: 64px;
+  padding: 22px 44px 6px 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--rv-text);
+  font-size: 16px;
+  font-family: var(--rv-font);
+  font-weight: 400;
+  letter-spacing: 0.005em;
+  box-sizing: border-box;
+  caret-color: var(--rv-accent);
+}
+
+/* autofill — keep dark background */
+.rv-field-ul input:-webkit-autofill,
+.rv-field-ul input:-webkit-autofill:hover,
+.rv-field-ul input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--rv-text) !important;
+  -webkit-box-shadow: 0 0 0 1000px var(--rv-bg) inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+  caret-color: var(--rv-accent);
+}
+
+/* floating label — siblings after input, CSS-driven via placeholder=" " trick */
+.rv-label {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--rv-text-dim);
+  font-size: 16px;
+  font-weight: 400;
+  font-family: var(--rv-font);
+  letter-spacing: 0.005em;
+  transition:
+    top 0.15s ease,
+    transform 0.15s ease,
+    font-size 0.15s ease,
+    color 0.15s ease,
+    letter-spacing 0.15s ease,
+    font-weight 0.15s ease;
+}
+
+.rv-field-ul input:focus ~ .rv-label,
+.rv-field-ul input:not(:placeholder-shown) ~ .rv-label {
+  top: 11px;
+  transform: translateY(0);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.rv-field-ul input:focus ~ .rv-label {
+  color: var(--rv-accent);
+}
+
+.rv-field-ul input:not(:placeholder-shown):not(:focus) ~ .rv-label {
+  color: var(--rv-text-dim);
+}
+
+/* eye toggle */
+.rv-eye-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--rv-text-mute);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.rv-eye-btn:hover {
+  color: var(--rv-text);
+}
+
+/* ── forgot row ─────────────────────────────────────────────────────────── */
+.rv-forgot-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.rv-forgot {
+  font-family: var(--rv-font);
+  font-size: 13px;
+  color: var(--rv-text-dim);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rv-border);
+  padding-bottom: 1px;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.rv-forgot:hover {
+  color: var(--rv-text);
+  border-color: var(--rv-border-hi);
+}
+
+/* ── error message ──────────────────────────────────────────────────────── */
+.rv-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #f87171;
+  font-size: 13px;
+  font-family: var(--rv-font);
+  margin: 12px 0 4px;
+  padding: 10px 14px;
+  background: rgba(248, 113, 113, 0.07);
+  border: 1px solid rgba(248, 113, 113, 0.20);
+  border-radius: 10px;
+}
+
+/* ── submit button — pill ───────────────────────────────────────────────── */
+.rv-submit {
+  width: 100%;
+  height: 56px;
+  margin-top: 20px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  background: var(--rv-accent);
+  color: #06121a;
+  font-family: var(--rv-font);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: transform 0.12s ease, box-shadow 0.18s ease, background 0.18s ease;
+  box-shadow: 0 4px 20px rgba(34, 211, 238, 0.25);
+}
+
+.rv-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(34, 211, 238, 0.35);
+}
+
+.rv-submit:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 2px 10px rgba(34, 211, 238, 0.2);
+}
+
+.rv-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@keyframes rv-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.rv-spinner {
+  animation: rv-spin 0.8s linear infinite;
+}
+
+/* ── divider ────────────────────────────────────────────────────────────── */
+.rv-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--rv-text-mute);
+  font-size: 12px;
+  font-family: var(--rv-font);
+  letter-spacing: 0.04em;
+  margin: 20px 0 14px;
+}
+
+.rv-divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--rv-border);
+}
+
+/* ── Google button — pill ───────────────────────────────────────────────── */
+.rv-google-btn {
+  width: 100%;
+  height: 48px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid var(--rv-border-hi);
+  color: var(--rv-text);
+  font-family: var(--rv-font);
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.rv-google-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
+/* ── sign-up link ───────────────────────────────────────────────────────── */
+.rv-signup {
+  font-size: 13px;
+  color: var(--rv-text-dim);
+  margin-top: 24px;
+  margin-bottom: 0;
+  text-align: center;
+  font-family: var(--rv-font);
+}
+
+.rv-signup a {
+  color: var(--rv-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+
+.rv-signup a:hover {
+  color: var(--rv-accent);
+}
+
+/* ── EKG footer ribbon ──────────────────────────────────────────────────── */
+.rv-ekg-footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100px;
+  pointer-events: none;
+  opacity: 0.95;
+  mask-image: linear-gradient(to top, black 40%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to top, black 40%, transparent 100%);
+}
+
+.rv-ekg-footer canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── footer metadata text ───────────────────────────────────────────────── */
+.rv-footer-meta {
+  position: absolute;
+  bottom: 18px;
+  left: 56px;
+  right: 56px;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--rv-mono);
+  font-size: 10px;
+  color: var(--rv-text-mute);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+/* ── 2FA step ───────────────────────────────────────────────────────────── */
+
+/* entrada suave cuando el bloque aparece */
+@keyframes rv-fadein {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.rv-2fa-hint {
+  font-size: 13.5px;
+  color: var(--rv-text-dim);
+  font-family: var(--rv-font);
+  line-height: 1.65;
+  margin: 0 0 28px;
+  animation: rv-fadein 0.28s ease;
+}
+
+/* input TOTP — mono, grande, centrado para que los 6 dígitos destaquen */
+.rv-field-ul input[inputmode="numeric"] {
+  font-family: var(--rv-mono);
+  font-size: 28px;
+  letter-spacing: 0.32em;
+  text-align: center;
+  padding-top: 28px;
+  padding-bottom: 4px;
+  padding-right: 0;         /* sin eye-btn */
+  caret-color: var(--rv-accent);
+}
+
+/* label flotante centrada encima de los dígitos */
+.rv-field-ul input[inputmode="numeric"] ~ .rv-label {
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.rv-field-ul input[inputmode="numeric"]:focus ~ .rv-label,
+.rv-field-ul input[inputmode="numeric"]:not(:placeholder-shown) ~ .rv-label {
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+
+/* glow sutil sobre el underline cuando el TOTP input está activo */
+.rv-field-ul:focus-within:has(input[inputmode="numeric"]) {
+  border-bottom-color: var(--rv-accent);
+  box-shadow: 0 2px 12px rgba(34, 211, 238, 0.15);
+}
+
+/* botón "volver" — link sutil centrado bajo el submit */
+.rv-back-btn {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  background: none;
+  border: none;
+  padding: 6px 0;
+  cursor: pointer;
+  text-align: center;
+  font-family: var(--rv-font);
+  font-size: 13px;
+  color: var(--rv-text-mute);
+  transition: color 0.15s;
+}
+
+.rv-back-btn:hover {
+  color: var(--rv-text);
+}
+
+/* ── responsive — collapse to single column on small screens ────────────── */
+@media (max-width: 860px) {
+  .rv-top-bar {
+    left: 28px;
+    right: 28px;
+    top: 20px;
+  }
+
+  .rv-tagline {
+    display: none;
+  }
+
+  .rv-main {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 90px 28px 140px;
+    gap: 40px;
+    min-height: 100vh;
+    box-sizing: border-box;
+  }
+
+  .rv-heading {
+    font-size: clamp(40px, 10vw, 64px);
+  }
+
+  .rv-right {
+    max-width: 100%;
+    justify-self: unset;
+  }
+
+  .rv-footer-meta {
+    left: 28px;
+    right: 28px;
+  }
+}

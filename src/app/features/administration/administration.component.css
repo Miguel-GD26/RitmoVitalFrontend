@@ -1,0 +1,3 @@
+.page-header   { margin-bottom: 1.25rem; }
+.page-title    { font-size: 1.5rem; font-weight: 700; color: var(--text-primary, #1a365d); margin: 0; }
+.page-subtitle { color: #666; font-size: 0.9rem; margin: 0.25rem 0 0; }

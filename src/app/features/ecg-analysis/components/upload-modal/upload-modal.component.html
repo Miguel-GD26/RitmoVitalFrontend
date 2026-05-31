@@ -1,0 +1,141 @@
+<div class="modal-backdrop" (click)="cancel()">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+
+    <!-- PASO 1: Selección de modo -->
+    <ng-container *ngIf="step() === 'mode'">
+      <div class="modal-header">
+        <h2 class="modal-title"><i class="fas fa-heartbeat"></i> Analizar Paciente Real</h2>
+        <button class="modal-close" (click)="cancel()" aria-label="Cerrar">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-subtitle">Selecciona el modo de análisis según los archivos disponibles.</p>
+        <div class="mode-grid">
+          <button
+            class="mode-option"
+            [class.selected]="selectedMode() === 'evaluation'"
+            (click)="selectMode('evaluation')">
+            <span class="mode-icon">📊</span>
+            <div class="mode-details">
+              <strong class="mode-name">Modo Evaluación</strong>
+              <p class="mode-desc">Valida el rendimiento del modelo contra etiquetas médicas reales. Ideal para investigación y validación científica.</p>
+              <span class="mode-files"><i class="fas fa-file"></i> .dat + .hea + .atr</span>
+            </div>
+            <div class="mode-check" *ngIf="selectedMode() === 'evaluation'">
+              <i class="fas fa-check-circle"></i>
+            </div>
+          </button>
+
+          <button
+            class="mode-option"
+            [class.selected]="selectedMode() === 'production'"
+            (click)="selectMode('production')">
+            <span class="mode-icon">🏥</span>
+            <div class="mode-details">
+              <strong class="mode-name">Modo Producción</strong>
+              <p class="mode-desc">Simula un escenario clínico real. El sistema detecta y clasifica automáticamente sin anotaciones previas.</p>
+              <span class="mode-files"><i class="fas fa-file"></i> .dat + .hea</span>
+            </div>
+            <div class="mode-check" *ngIf="selectedMode() === 'production'">
+              <i class="fas fa-check-circle"></i>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="cancel()">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button class="btn btn-primary" (click)="goToFiles()">
+          Continuar <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- PASO 2: Carga de archivos -->
+    <ng-container *ngIf="step() === 'files'">
+      <div class="modal-header">
+        <h2 class="modal-title">
+          <i class="fas fa-upload"></i>
+          {{ isEvaluation() ? 'Subir Registro Completo' : 'Subir Señal de Paciente' }}
+        </h2>
+        <button class="modal-close" (click)="cancel()" aria-label="Cerrar">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="file-group">
+          <label class="file-label">
+            <i class="fas fa-wave-square"></i> Señal ECG (.dat) <span class="required">*</span>
+          </label>
+          <label class="file-drop" [class.has-file]="datFile()">
+            <input type="file" accept=".dat" (change)="onFileChange($event, 'dat')" class="file-input-hidden">
+            <i class="fas" [class.fa-file-upload]="!datFile()" [class.fa-check-circle]="datFile()"></i>
+            <span>{{ datFile()?.name ?? 'Seleccionar archivo .dat' }}</span>
+          </label>
+        </div>
+
+        <div class="file-group">
+          <label class="file-label">
+            <i class="fas fa-file-alt"></i> Cabecera (.hea) <span class="required">*</span>
+          </label>
+          <label class="file-drop" [class.has-file]="heaFile()">
+            <input type="file" accept=".hea" (change)="onFileChange($event, 'hea')" class="file-input-hidden">
+            <i class="fas" [class.fa-file-upload]="!heaFile()" [class.fa-check-circle]="heaFile()"></i>
+            <span>{{ heaFile()?.name ?? 'Seleccionar archivo .hea' }}</span>
+          </label>
+        </div>
+
+        <ng-container *ngIf="isEvaluation()">
+          <div class="file-group">
+            <label class="file-label">
+              <i class="fas fa-tags"></i> Anotaciones (.atr) <span class="required">*</span>
+            </label>
+            <label class="file-drop" [class.has-file]="atrFile()">
+              <input type="file" accept=".atr" (change)="onFileChange($event, 'atr')" class="file-input-hidden">
+              <i class="fas" [class.fa-file-upload]="!atrFile()" [class.fa-check-circle]="atrFile()"></i>
+              <span>{{ atrFile()?.name ?? 'Seleccionar archivo .atr' }}</span>
+            </label>
+          </div>
+          <div class="info-box info-box--warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div>
+              <strong>Los 3 archivos deben tener el mismo nombre base</strong>
+              <span>Ejemplo: 100.dat, 100.hea, 100.atr</span>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="!isEvaluation()">
+          <div class="info-box info-box--info">
+            <i class="fas fa-info-circle"></i>
+            <div>
+              <strong>Procesamiento Automático</strong>
+              <span>El sistema detectará y clasificará todos los latidos sin anotaciones previas.</span>
+            </div>
+          </div>
+        </ng-container>
+
+        <div class="validation-error" *ngIf="validationError()">
+          <i class="fas fa-exclamation-circle"></i>
+          {{ validationError() }}
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="goBack()">
+          <i class="fas fa-arrow-left"></i> Atrás
+        </button>
+        <button class="btn btn-primary" (click)="submit()">
+          <i class="fas fa-microscope"></i>
+          {{ isEvaluation() ? 'Analizar Registro' : 'Clasificar Señal' }}
+        </button>
+      </div>
+    </ng-container>
+
+  </div>
+</div>

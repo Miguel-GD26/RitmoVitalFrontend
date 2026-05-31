@@ -1,0 +1,99 @@
+<app-modal size="md" (closed)="closed.emit()">
+  <ng-container modal-title>
+    <i class="fas fa-link"></i>
+    {{ alreadyLinked ? 'Cuenta vinculada' : 'Vincular cuenta de usuario' }}
+  </ng-container>
+
+  <ng-container modal-body>
+
+    <!-- Info del paciente -->
+    <div class="patient-info-box">
+      <div class="patient-info-row">
+        <span class="info-label"><i class="fas fa-user"></i> Paciente</span>
+        <span class="info-value">{{ patient().nombre }} {{ patient().apellido }}</span>
+      </div>
+      <div class="patient-info-row" *ngIf="patient().numero_documento">
+        <span class="info-label"><i class="fas fa-fingerprint"></i> {{ patient().tipo_documento }}</span>
+        <span class="info-value">{{ patient().numero_documento }}</span>
+      </div>
+      <div class="patient-info-row" *ngIf="patient().historia_clinica">
+        <span class="info-label"><i class="fas fa-hospital-alt"></i> Historia</span>
+        <span class="info-value">{{ patient().historia_clinica }}</span>
+      </div>
+    </div>
+
+    <!-- Ya vinculado -->
+    <div *ngIf="alreadyLinked" class="linked-status">
+      <div class="linked-badge">
+        <i class="fas fa-check-circle"></i>
+        Este paciente ya tiene una cuenta de usuario activa.
+      </div>
+      <button type="button" class="desvincular-btn" (click)="desvincular()">
+        <i class="fas fa-unlink"></i> Desvincular cuenta
+      </button>
+    </div>
+
+    <!-- Formulario vincular -->
+    <form *ngIf="!alreadyLinked" [formGroup]="form">
+      <p class="vincular-hint">
+        Ingresa el <strong>correo</strong> de una cuenta existente para vincularla,
+        o agrega también una <strong>contraseña</strong> para crear una cuenta nueva.
+      </p>
+
+      <div *ngIf="errorMsg()" class="form-validation" style="margin-bottom:0.75rem">
+        <i class="fas fa-exclamation-triangle"></i> {{ errorMsg() }}
+      </div>
+
+      <div class="form-group">
+        <div class="input-wrapper">
+          <i class="input-icon fas fa-envelope"></i>
+          <input type="email" formControlName="email" class="form-input"
+                 placeholder=" " id="vc-email" autocomplete="email">
+          <label for="vc-email" class="form-label">
+            Correo electrónico <span class="required">*</span>
+          </label>
+        </div>
+        <div *ngIf="f['email'].invalid && f['email'].touched" class="form-validation">
+          <i class="fas fa-exclamation-triangle"></i> Correo válido requerido.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="input-wrapper">
+          <i class="input-icon fas fa-lock"></i>
+          <input [type]="showPass() ? 'text' : 'password'"
+                 formControlName="password" class="form-input pass-input-sm"
+                 placeholder=" " id="vc-password" autocomplete="new-password">
+          <label for="vc-password" class="form-label">
+            Contraseña <span class="new-account-hint">(solo si es cuenta nueva)</span>
+          </label>
+          <div class="pass-actions">
+            <button type="button" class="pass-eye" tabindex="-1"
+                    (click)="showPass.set(!showPass())">
+              <i class="fas" [class.fa-eye]="!showPass()" [class.fa-eye-slash]="showPass()"></i>
+            </button>
+          </div>
+        </div>
+        <div *ngIf="f['password'].invalid && f['password'].touched" class="form-validation">
+          <i class="fas fa-exclamation-triangle"></i> Mínimo 6 caracteres.
+        </div>
+      </div>
+    </form>
+
+  </ng-container>
+
+  <ng-container modal-footer>
+    <button type="button" (click)="closed.emit()"
+            class="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+      {{ alreadyLinked ? 'Cerrar' : 'Cancelar' }}
+    </button>
+    <button *ngIf="!alreadyLinked"
+            type="button" (click)="submit()" [disabled]="isSaving()"
+            class="px-5 py-2 text-sm font-medium text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            style="background-color: var(--accent)">
+      <i class="fas fa-spinner fa-spin" *ngIf="isSaving()"></i>
+      <i class="fas fa-link" *ngIf="!isSaving()"></i>
+      {{ isSaving() ? 'Vinculando...' : 'Vincular' }}
+    </button>
+  </ng-container>
+</app-modal>

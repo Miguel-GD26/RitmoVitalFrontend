@@ -1,0 +1,18 @@
+/* Usa page-hero, data-table-wrapper, data-table, chip, table-empty de styles.css global */
+
+.perms-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.perms-sample {
+  font-size: 0.72rem;
+  color: #64748B;
+  font-style: italic;
+  max-width: 320px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
