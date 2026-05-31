@@ -35,11 +35,11 @@ export class EcgApiService {
     formData.append('dat_file', files.datFile);
     formData.append('hea_file', files.heaFile);
     formData.append('atr_file', files.atrFile);
-    formData.append('page', String(page));
-    formData.append('page_size', String(pageSize));
     if (files.pacienteId) formData.append('paciente_id', String(files.pacienteId));
     return this.http
-      .post<ApiResponse<TaskSubmitResult>>(`${this.v1}/analyze-patient/`, formData)
+      .post<ApiResponse<TaskSubmitResult>>(
+        `${this.v1}/analyze-patient/?page=${page}&page_size=${pageSize}`, formData
+      )
       .pipe(map(res => res.data));
   }
 
@@ -47,11 +47,11 @@ export class EcgApiService {
     const formData = new FormData();
     formData.append('dat_file', files.datFile);
     formData.append('hea_file', files.heaFile);
-    formData.append('page', String(page));
-    formData.append('page_size', String(pageSize));
     if (files.pacienteId) formData.append('paciente_id', String(files.pacienteId));
     return this.http
-      .post<ApiResponse<TaskSubmitResult>>(`${this.v1}/analyze-patient-production/`, formData)
+      .post<ApiResponse<TaskSubmitResult>>(
+        `${this.v1}/analyze-patient-production/?page=${page}&page_size=${pageSize}`, formData
+      )
       .pipe(map(res => res.data));
   }
 
