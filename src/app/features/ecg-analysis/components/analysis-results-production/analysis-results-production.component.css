@@ -26,14 +26,28 @@
   padding-top: 1rem;
 }
 
+.beats-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.625rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .beats-title {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 0.625rem;
+  margin: 0;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.pagination-info {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
 }
 
 .beats-grid-header,
@@ -58,8 +72,9 @@
   border-bottom: 1px solid var(--border-color);
 }
 
-.beats-viewport {
-  height: 400px;
+.beats-table-body {
+  max-height: 400px;
+  overflow-y: auto;
   border: 1px solid var(--border-color);
   border-top: none;
   border-radius: 0 0 6px 6px;
@@ -73,6 +88,7 @@
   color: var(--text-primary);
   transition: background 0.1s;
 }
+.beats-grid-row:last-child { border-bottom: none; }
 .beats-grid-row:hover { background: var(--app-bg); }
 
 .mono { font-family: monospace; font-size: 0.78rem; color: var(--text-secondary); }
@@ -81,6 +97,49 @@
 
 .text-warning { color: #d97706; font-size: 0.75rem; }
 .text-muted   { color: var(--text-secondary); font-size: 0.8rem; }
+
+/* ── pagination ──────────────────────────────────────────────────────── */
+.pagination {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 0.75rem;
+  align-items: center;
+}
+
+.pagination-btn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pagination-btn:hover:not(.active) { background: var(--app-bg); }
+.pagination-btn.active {
+  background: var(--primary-color, #3b82f6);
+  color: #fff;
+  border-color: var(--primary-color, #3b82f6);
+  font-weight: 600;
+}
+
+.pagination-ellipsis {
+  min-width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+}
 
 @media (max-width: 1100px) {
   .results-layout { grid-template-columns: 1fr; }

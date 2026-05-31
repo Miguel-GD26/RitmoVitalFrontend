@@ -19,9 +19,15 @@
       <p *ngIf="!plotUrl()" class="placeholder-text">Gráfico no disponible.</p>
     </div>
 
-    <!-- TABLA DE LATIDOS con virtual scroll -->
-    <div *ngIf="result()?.latidos?.length" class="beats-section">
-      <h3 class="beats-title"><i class="fas fa-list-ul"></i> Latidos Clasificados</h3>
+    <!-- TABLA DE LATIDOS -->
+    <div *ngIf="allBeats().length" class="beats-section">
+      <div class="beats-section-header">
+        <h3 class="beats-title"><i class="fas fa-list-ul"></i> Latidos Clasificados</h3>
+        <span class="pagination-info">
+          Mostrando {{ rangeStart() }}–{{ rangeEnd() }} de {{ allBeats().length }} latidos
+        </span>
+      </div>
+
       <div class="beats-grid-header">
         <span>#</span>
         <span>R-Peak</span>
@@ -31,8 +37,8 @@
         <span>Confianza</span>
         <span>Prematuro</span>
       </div>
-      <cdk-virtual-scroll-viewport itemSize="36" class="beats-viewport">
-        <div *cdkVirtualFor="let beat of result()!.latidos; trackBy: trackByIndex"
+      <div class="beats-table-body">
+        <div *ngFor="let beat of paginatedBeats(); trackBy: trackByIndex"
              class="beats-grid-row"
              [class.row-mismatch]="beat.clase_real !== beat.clase_predicha">
           <span class="mono">{{ beat.indice }}</span>
@@ -52,7 +58,21 @@
             <span *ngIf="!beat.es_prematuro" class="text-muted">—</span>
           </span>
         </div>
-      </cdk-virtual-scroll-viewport>
+      </div>
+
+      @if (totalPages() > 1) {
+        <div class="pagination">
+          @for (page of pageNumbers(); track $index) {
+            @if (page === '...') {
+              <span class="pagination-ellipsis">…</span>
+            } @else {
+              <button class="pagination-btn"
+                      [class.active]="page === currentPage()"
+                      (click)="goToPage(page)">{{ page }}</button>
+            }
+          }
+        </div>
+      }
     </div>
 
     <div class="action-buttons">

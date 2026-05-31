@@ -30,7 +30,7 @@ export class EcgApiService {
       .pipe(map(res => res.data));
   }
 
-  analyzePatient(files: EvaluationFiles, page = 1, pageSize = 100): Observable<TaskSubmitResult> {
+  analyzePatient(files: EvaluationFiles, page = 1, pageSize = 5000): Observable<TaskSubmitResult> {
     const formData = new FormData();
     formData.append('dat_file', files.datFile);
     formData.append('hea_file', files.heaFile);
@@ -43,7 +43,7 @@ export class EcgApiService {
       .pipe(map(res => res.data));
   }
 
-  analyzeProduction(files: ProductionFiles, page = 1, pageSize = 100): Observable<TaskSubmitResult> {
+  analyzeProduction(files: ProductionFiles, page = 1, pageSize = 5000): Observable<TaskSubmitResult> {
     const formData = new FormData();
     formData.append('dat_file', files.datFile);
     formData.append('hea_file', files.heaFile);
