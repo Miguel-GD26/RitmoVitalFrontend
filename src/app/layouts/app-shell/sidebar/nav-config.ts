@@ -26,22 +26,22 @@ export const NAV_ITEMS: MenuItem[] = [
     route: '/dashboard',
   },
 
-  // Médico
+  // Médico e Investigador
   {
     label: 'Análisis ECG',
     icon: 'fas fa-stethoscope',
     type: 'group',
-    roles: ['medico'],
+    roles: ['medico', 'investigador'],
     subMenu: [
-      { label: 'Con Anotaciones', route: '/ecg-analysis/annotated', roles: ['medico'] },
-      { label: 'Producción',      route: '/ecg-analysis/production', roles: ['medico'] },
+      { label: 'Con Anotaciones', route: '/ecg-analysis/annotated',  roles: ['medico', 'investigador'] },
+      { label: 'Producción',      route: '/ecg-analysis/production', roles: ['medico', 'investigador'] },
     ],
   },
   {
     label: 'Pacientes',
     icon: 'fas fa-users',
     route: '/patients',
-    roles: ['medico', 'administrador'],
+    roles: ['medico', 'investigador', 'administrador'],
   },
   {
     label: 'Historial',
@@ -49,13 +49,11 @@ export const NAV_ITEMS: MenuItem[] = [
     route: '/history',
     roles: ['medico', 'paciente', 'investigador', 'administrador'],
   },
-
-  // Investigador
   {
     label: 'Demo ECG',
     icon: 'fas fa-flask',
     route: '/demo',
-    roles: ['investigador'],
+    roles: ['medico', 'investigador'],
   },
 
   // Todos los roles

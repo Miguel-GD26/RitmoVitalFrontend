@@ -19,6 +19,7 @@ RUN printf '%s\n' \
     '    listen 8080;' \
     '    root /usr/share/nginx/html;' \
     '    index index.html;' \
+    '    client_max_body_size 50M;' \
     '    location /api/ {' \
     '        proxy_pass https://ritmo-vital.up.railway.app/api/;' \
     '        proxy_http_version 1.1;' \
