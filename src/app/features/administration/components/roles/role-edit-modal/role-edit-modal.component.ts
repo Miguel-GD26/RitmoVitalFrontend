@@ -1,16 +1,16 @@
 import { Component, inject, input, output, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { AdminApiService } from '../../../services/admin-api.service';
 import { AdminRole, PermissionGroup } from '../../../models/admin-user.model';
 import { AppModalComponent } from '@shared/components/app-modal/app-modal.component';
+import { AppSearchInputComponent } from '@shared/components/app-search-input/app-search-input.component';
 import { AlertService } from '@core/services/alert';
 import { ROLE_CHIP, ROLE_LABELS } from '@core/constants/roles.constants';
 
 @Component({
   selector: 'app-role-edit-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, AppModalComponent],
+  imports: [CommonModule, AppModalComponent, AppSearchInputComponent],
   templateUrl: './role-edit-modal.component.html',
   styleUrls: ['./role-edit-modal.component.css'],
 })

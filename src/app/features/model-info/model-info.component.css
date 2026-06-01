@@ -1,9 +1,44 @@
 /* ── Layout ─────────────────────────────────────────────────────── */
+
+/* Contención horizontal — evita overflow en cualquier breakpoint */
+:host {
+  display: block;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 .mi-grid {
   display: grid;
   grid-template-columns: 1fr 360px;
   gap: 1.5rem;
   align-items: start;
+  min-width: 0;
+}
+
+/* Cards en este componente no deben desbordar */
+.card {
+  overflow: hidden;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Scroll wrapper — preserva el layout desktop en mobile */
+.arch-diagram-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -0.25rem;
+  padding: 0 0.25rem;
+}
+
+.arch-diagram {
+  min-width: 420px;
+}
+
+/* Todos los hijos directos de grids/flex acotados */
+.mi-left,
+.mi-right {
+  min-width: 0;
+  overflow: hidden;
 }
 
 .mi-left,
@@ -117,7 +152,8 @@
   align-items: center;
   gap: 0.75rem;
   width: 100%;
-  max-width: 420px;
+  max-width: min(420px, 100%);
+  box-sizing: border-box;
   transition: border-color 0.2s;
 }
 .arch-step i {
@@ -205,7 +241,94 @@
 .arch-output--red    { background: #FEF2F2; border-color: #FECACA; color: #DC2626; }
 .arch-output--yellow { background: #FFFBEB; border-color: #FDE68A; color: #D97706; }
 
+/* ── Investigators ──────────────────────────────────────────────── */
+.investigators-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.inv-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  transition: background 0.12s;
+}
+.inv-card:last-child { border-bottom: none; }
+.inv-card:hover { background: #F8FAFC; }
+
+.inv-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #174a7a, #1e88e5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 2px solid #E2E8F0;
+}
+
+.inv-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.inv-avatar-initials {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: 0.03em;
+}
+
+.inv-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.inv-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.inv-institution {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.inv-institution i { color: var(--accent); font-size: 0.72rem; }
+
+.inv-orcid {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: #16a34a;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.inv-orcid:hover { color: #15803d; text-decoration: underline; }
+.inv-orcid i { font-size: 0.72rem; }
+
 /* ── AAMI Classes table ─────────────────────────────────────────── */
+.data-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
 .td-desc {
   font-size: 0.8rem;
   color: var(--text-secondary);
@@ -392,26 +515,22 @@
 
 /* ── Responsive ─────────────────────────────────────────────────── */
 @media (max-width: 1100px) {
-  .mi-grid {
-    grid-template-columns: 1fr;
-  }
+  .mi-grid { grid-template-columns: 1fr; }
 }
 
-@media (max-width: 640px) {
-  .arch-inputs {
-    grid-template-columns: 1fr;
-  }
+@media (max-width: 768px) {
+  /* tabla con scroll horizontal */
+  .data-table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .data-table { min-width: 460px; }
+  .td-desc { max-width: 160px; }
 
-  .arch-merge-svg {
-    display: none;
-  }
+  /* dataset */
+  .dataset-stats { grid-template-columns: repeat(2, 1fr); }
+}
 
-  .dataset-stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
+@media (max-width: 480px) {
+  /* input shape rows */
+  .input-shape-row { flex-wrap: wrap; }
 
-  .arch-outputs {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
+  .mi-arch-desc { font-size: 0.82rem; }
 }

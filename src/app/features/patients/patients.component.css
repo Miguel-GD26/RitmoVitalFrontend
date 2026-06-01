@@ -116,6 +116,7 @@
 @media (max-width: 640px) {
   .search-input { width: 100%; }
   .search-wrapper { flex: 1; }
+  .col-span-2 { grid-column: span 1; }
 }
 
 

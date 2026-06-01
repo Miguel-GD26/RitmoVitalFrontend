@@ -14,6 +14,7 @@ export interface CurrentUser {
   email: string;
   groups: string[];
   is_superuser: boolean;
+  avatar_url?: string | null;
 }
 
 // Key stored in localStorage to know if a session was ever established.

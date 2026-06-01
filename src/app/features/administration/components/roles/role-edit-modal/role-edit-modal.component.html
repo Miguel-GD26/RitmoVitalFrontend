@@ -51,11 +51,12 @@
 
         <!-- Barra de búsqueda + acciones -->
         <div class="perms-toolbar">
-          <div class="relative flex-1">
-            <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" style="font-size:0.75rem"></i>
-            <input type="text" class="perm-search" placeholder="Buscar permiso..."
-                   [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
-          </div>
+          <app-search-input
+            class="flex-1"
+            placeholder="Buscar permiso..."
+            [value]="searchTerm()"
+            (valueChange)="searchTerm.set($event)">
+          </app-search-input>
           <button type="button" class="perms-action-btn" (click)="selectAll()">
             <i class="fas fa-check-double"></i> Seleccionar {{ searchTerm() ? 'visibles' : 'todos' }}
           </button>

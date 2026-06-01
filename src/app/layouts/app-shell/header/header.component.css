@@ -124,6 +124,14 @@
   font-size: 0.95rem;
   flex-shrink: 0;
   box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
+  overflow: hidden;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .user-details {
@@ -182,6 +190,7 @@
   font-size: 1.5rem;
   margin: 0 auto 0.75rem;
   border: 3px solid rgba(255, 255, 255, 0.3);
+  overflow: hidden;
 }
 
 .dropdown-header h4 {

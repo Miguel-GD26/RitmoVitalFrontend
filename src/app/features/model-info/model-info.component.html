@@ -63,6 +63,7 @@
         </p>
 
         <!-- Architecture Diagram -->
+        <div class="arch-diagram-scroll">
         <div class="arch-diagram">
 
           <!-- Input boxes -->
@@ -143,6 +144,7 @@
 
           </div>
         </div>
+        </div>
       </div>
 
       <!-- AAMI Classes table -->
@@ -178,6 +180,35 @@
               </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- Investigators -->
+      <div class="card mt-6" *ngIf="investigators().length > 0">
+        <div class="card-header">
+          <h2 class="card-title"><i class="fas fa-users"></i> Equipo Investigador</h2>
+          <span class="chip chip-purple"><i class="fas fa-flask"></i> Investigadores</span>
+        </div>
+        <div class="investigators-grid">
+          <div *ngFor="let inv of investigators()" class="inv-card">
+            <div class="inv-avatar">
+              <img *ngIf="inv.avatar_url" [src]="inv.avatar_url" [alt]="inv.full_name" class="inv-avatar-img">
+              <span *ngIf="!inv.avatar_url" class="inv-avatar-initials">{{ getInitials(inv.full_name) }}</span>
+            </div>
+            <div class="inv-info">
+              <span class="inv-name">{{ inv.full_name }}</span>
+              <span *ngIf="inv.institucion" class="inv-institution">
+                <i class="fas fa-university"></i> {{ inv.institucion }}
+              </span>
+              <a *ngIf="inv.orcid"
+                 [href]="'https://orcid.org/' + inv.orcid"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 class="inv-orcid">
+                <i class="fas fa-id-badge"></i> {{ inv.orcid }}
+              </a>
+            </div>
+          </div>
         </div>
       </div>
 

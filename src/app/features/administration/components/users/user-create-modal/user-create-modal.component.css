@@ -191,4 +191,5 @@
     margin-bottom: 1rem;
   }
   .form-panel { padding-left: 0; }
+  .grid-cols-2 { grid-template-columns: 1fr; }
 }

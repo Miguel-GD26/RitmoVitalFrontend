@@ -66,4 +66,18 @@ export class EcgApiService {
       .get<ApiResponse<ModelInfo>>(`${this.base}/api/model-info/`)
       .pipe(map(res => res.data));
   }
+
+  getInvestigators(): Observable<Investigator[]> {
+    return this.http
+      .get<ApiResponse<Investigator[]>>(`${this.base}/api/investigators/`)
+      .pipe(map(res => res.data));
+  }
+}
+
+export interface Investigator {
+  username: string;
+  full_name: string;
+  avatar_url: string | null;
+  orcid: string;
+  institucion: string;
 }

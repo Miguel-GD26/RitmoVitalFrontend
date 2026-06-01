@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { EcgApiService } from '../ecg-analysis/services/ecg-api.service';
+import { EcgApiService, Investigator } from '../ecg-analysis/services/ecg-api.service';
 import { ModelInfo } from '../ecg-analysis/models/model-info.model';
 
 interface ClassMeta {
@@ -28,9 +28,10 @@ interface InputMeta {
 export class ModelInfoComponent implements OnInit {
   private readonly api = inject(EcgApiService);
 
-  isLoading = signal(true);
-  modelInfo = signal<ModelInfo | null>(null);
-  errorMessage = signal<string | null>(null);
+  isLoading     = signal(true);
+  modelInfo     = signal<ModelInfo | null>(null);
+  errorMessage  = signal<string | null>(null);
+  investigators = signal<Investigator[]>([]);
 
   readonly classMeta: Record<string, ClassMeta> = {
     '0': {
@@ -95,6 +96,17 @@ export class ModelInfoComponent implements OnInit {
         this.isLoading.set(false);
       },
     });
+
+    this.api.getInvestigators().subscribe({
+      next: data => this.investigators.set(data),
+      error: () => {},
+    });
+  }
+
+  getInitials(name: string): string {
+    const parts = name.trim().split(/\s+/).filter(p => p.length > 0);
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return parts[0]?.[0]?.toUpperCase() ?? '?';
   }
 
   getClassEntries(): Array<{ key: string; meta: ClassMeta }> {

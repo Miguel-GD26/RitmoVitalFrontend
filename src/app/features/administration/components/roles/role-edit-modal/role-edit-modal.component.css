@@ -97,17 +97,6 @@
   align-items: center;
   gap: 0.5rem;
 }
-.perm-search {
-  width: 100%;
-  padding: 0.45rem 0.75rem 0.45rem 2rem;
-  font-size: 0.82rem;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  background: #F8FAFC;
-  outline: none;
-  transition: border-color 0.15s;
-}
-.perm-search:focus { border-color: var(--accent); background: white; }
 
 .perms-action-btn {
   flex-shrink: 0;
@@ -206,4 +195,6 @@
   .info-panel         { border-right: none; border-bottom: 1px solid #E2E8F0; padding-right: 0; padding-bottom: 1.25rem; margin-bottom: 0.75rem; }
   .perms-panel        { padding-left: 0; }
   .perm-items-grid    { grid-template-columns: 1fr; }
+  .perms-toolbar      { flex-wrap: wrap; }
+  .perms-toolbar > app-search-input { width: 100%; flex: 1 1 100%; }
 }

@@ -20,8 +20,9 @@ export class HeaderComponent {
 
   readonly isCollapsed = this.sidebarService.collapsed;
 
-  readonly userName = computed(() => this.authService.currentUser()?.username ?? 'Usuario');
+  readonly userName     = computed(() => this.authService.currentUser()?.username ?? 'Usuario');
   readonly userInitials = computed(() => this.generateInitials(this.userName()));
+  readonly userAvatar   = computed(() => this.authService.currentUser()?.avatar_url ?? null);
   readonly userRole = computed(() => {
     const groups = this.authService.currentUser()?.groups ?? [];
     return groups.map(g => ROLE_LABELS[g]).find(Boolean) ?? 'Usuario';

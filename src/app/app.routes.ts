@@ -22,7 +22,7 @@ export const routes: Routes = [
       },
       {
         path: 'ecg-analysis',
-        canActivate: [roleGuard(['medico'])],
+        canActivate: [roleGuard(['medico', 'investigador'])],
         children: [
           {
             path: 'annotated',
@@ -47,13 +47,13 @@ export const routes: Routes = [
       },
       {
         path: 'patients',
-        canActivate: [roleGuard(['medico', 'administrador'])],
+        canActivate: [roleGuard(['medico', 'investigador', 'administrador'])],
         loadComponent: () => import('./features/patients/patients.component')
           .then(m => m.PatientsComponent)
       },
       {
         path: 'patients/:id',
-        canActivate: [roleGuard(['medico', 'administrador'])],
+        canActivate: [roleGuard(['medico', 'investigador', 'administrador'])],
         loadComponent: () => import('./features/patients/patient-detail.component')
           .then(m => m.PatientDetailComponent)
       },

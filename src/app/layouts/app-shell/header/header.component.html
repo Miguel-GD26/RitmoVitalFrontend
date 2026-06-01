@@ -27,7 +27,13 @@
          (click)="toggleProfileDropdown($event)"
          [class.active]="isProfileDropdownOpen()">
 
-      <div class="user-avatar">{{ userInitials() }}</div>
+      <div class="user-avatar">
+        @if (userAvatar()) {
+          <img [src]="userAvatar()!" alt="Avatar" class="avatar-img">
+        } @else {
+          {{ userInitials() }}
+        }
+      </div>
 
       <div class="user-details">
         <span class="user-name">{{ userName() }}</span>
@@ -37,7 +43,13 @@
       @if (isProfileDropdownOpen()) {
         <div class="profile-dropdown">
           <div class="dropdown-header">
-            <div class="dropdown-avatar">{{ userInitials() }}</div>
+            <div class="dropdown-avatar">
+              @if (userAvatar()) {
+                <img [src]="userAvatar()!" alt="Avatar" class="avatar-img">
+              } @else {
+                {{ userInitials() }}
+              }
+            </div>
             <h4>{{ userName() }}</h4>
             <p>{{ userRole() }}</p>
           </div>
