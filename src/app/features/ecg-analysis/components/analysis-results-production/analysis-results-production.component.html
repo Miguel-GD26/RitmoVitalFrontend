@@ -45,8 +45,10 @@
           </span>
           <span class="mono">{{ (beat.confianza * 100).toFixed(1) }}%</span>
           <span>
-            <i *ngIf="beat.es_prematuro" class="fas fa-exclamation-circle text-warning"></i>
-            <span *ngIf="!beat.es_prematuro" class="text-muted">—</span>
+            <span *ngIf="beat.es_prematuro" class="badge-prematuro badge-si">
+              <i class="fas fa-exclamation-circle"></i> Sí
+            </span>
+            <span *ngIf="!beat.es_prematuro" class="badge-prematuro badge-no">No</span>
           </span>
         </div>
       </div>
@@ -95,6 +97,37 @@
             <div class="mini-bar-fill" [style.width.%]="stat.porcentaje"></div>
           </div>
         </div>
+      </div>
+
+      <div class="results-section">
+        <h4 class="results-section-title"><i class="fas fa-user"></i> Paciente</h4>
+        @if (patient()) {
+          <div class="info-row">
+            <span>Nombre</span>
+            <strong>{{ patient()!.nombre }} {{ patient()!.apellido }}</strong>
+          </div>
+          @if (patient()!.historia_clinica) {
+            <div class="info-row">
+              <span>Historia Clínica</span>
+              <strong>{{ patient()!.historia_clinica }}</strong>
+            </div>
+          }
+          <div class="info-row">
+            <span>{{ patient()!.tipo_documento }}</span>
+            <strong>{{ patient()!.numero_documento }}</strong>
+          </div>
+          @if (patient()!.sexo) {
+            <div class="info-row">
+              <span>Sexo</span>
+              <strong>{{ patient()!.sexo === 'M' ? 'Masculino' : patient()!.sexo === 'F' ? 'Femenino' : 'Otro' }}</strong>
+            </div>
+          }
+        } @else {
+          <div class="no-patient">
+            <i class="fas fa-user-slash"></i>
+            <span>Sin paciente asignado</span>
+          </div>
+        }
       </div>
     </div>
   </aside>

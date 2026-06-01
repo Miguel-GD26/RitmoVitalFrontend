@@ -6,6 +6,7 @@ import { PatientsApiService } from './services/patients-api.service';
 import { Patient } from '@core/models/patient.model';
 import { AppModalComponent } from '@shared/components/app-modal/app-modal.component';
 import { AppFormSelectComponent, SelectOption } from '@shared/components/app-form-select/app-form-select.component';
+import { AppSearchInputComponent } from '@shared/components/app-search-input/app-search-input.component';
 import { AppPaginationComponent } from '@shared/components/app-pagination/app-pagination.component';
 import { PatientHistoryModalComponent } from './components/patient-history-modal/patient-history-modal.component';
 import { PatientVincularModalComponent } from './components/patient-vincular-modal/patient-vincular-modal.component';
@@ -20,7 +21,7 @@ import { useListSearch } from '@shared/utils/list-search.utils';
   standalone: true,
   imports: [
     CommonModule, ReactiveFormsModule,
-    AppModalComponent, AppFormSelectComponent,
+    AppModalComponent, AppFormSelectComponent, AppSearchInputComponent,
     AppPaginationComponent, PatientHistoryModalComponent, PatientVincularModalComponent,
   ],
   templateUrl: './patients.component.html',

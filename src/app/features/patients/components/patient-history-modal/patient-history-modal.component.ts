@@ -9,11 +9,12 @@ import { FormatDatePipe } from '@shared/pipes/format-date.pipe';
 import { triggerBlobDownload } from '@shared/utils/download.utils';
 import { getDropdownPos } from '@shared/utils/dropdown.utils';
 import { useListSearch } from '@shared/utils/list-search.utils';
+import { AppSearchInputComponent } from '@shared/components/app-search-input/app-search-input.component';
 
 @Component({
   selector: 'app-patient-history-modal',
   standalone: true,
-  imports: [CommonModule, AppModalComponent, AppPaginationComponent, FormatDatePipe],
+  imports: [CommonModule, AppModalComponent, AppPaginationComponent, FormatDatePipe, AppSearchInputComponent],
   templateUrl: './patient-history-modal.component.html',
 })
 export class PatientHistoryModalComponent implements OnChanges {

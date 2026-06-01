@@ -4,55 +4,48 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
-import { Subject, debounceTime, distinctUntilChanged, switchMap, of, timer, EMPTY, expand } from 'rxjs';
+import { timer, EMPTY, expand, switchMap } from 'rxjs';
 import { EcgApiService } from './services/ecg-api.service';
 import { ModelConfigService } from './services/model-config.service';
-import { PatientsApiService } from '../patients/services/patients-api.service';
 import { NotificationService } from '@core/services/notification/notification.service';
 import { Patient } from '@core/models/patient.model';
 import { PatientAnalysisResult } from './models/patient-analysis.model';
 import { ProductionAnalysisResult } from './models/production-analysis.model';
-import { EvaluationFiles, ProductionFiles } from './models/ecg-files.model';
 import { AnalysisResultsAnnotatedComponent } from './components/analysis-results-annotated/analysis-results-annotated.component';
 import { AnalysisResultsProductionComponent } from './components/analysis-results-production/analysis-results-production.component';
+import { AppPatientSelectComponent } from '@shared/components/app-patient-select/app-patient-select.component';
 
 type AnalysisMode = 'evaluation' | 'production';
 
 @Component({
   selector: 'app-ecg-analysis',
   standalone: true,
-  imports: [CommonModule, AnalysisResultsAnnotatedComponent, AnalysisResultsProductionComponent],
+  imports: [CommonModule, AnalysisResultsAnnotatedComponent, AnalysisResultsProductionComponent, AppPatientSelectComponent],
   templateUrl: './ecg-analysis.component.html',
   styleUrls: ['./ecg-analysis.component.css']
 })
 export class EcgAnalysisComponent implements OnInit {
   private readonly api           = inject(EcgApiService);
   private readonly modelConfig   = inject(ModelConfigService);
-  private readonly patientsApi   = inject(PatientsApiService);
   private readonly route         = inject(ActivatedRoute);
   private readonly sanitizer     = inject(DomSanitizer);
   private readonly destroyRef    = inject(DestroyRef);
   private readonly notifications = inject(NotificationService);
 
-  mode            = signal<AnalysisMode>('evaluation');
-  isAnalyzing     = signal(false);
-  hasResult       = signal(false);
-  errorMessage    = signal<string | null>(null);
-  validationError = signal<string | null>(null);
-  statusMessage   = signal<string>('Procesando señal ECG...');
-  patientResult   = signal<PatientAnalysisResult | null>(null);
+  mode             = signal<AnalysisMode>('evaluation');
+  isAnalyzing      = signal(false);
+  hasResult        = signal(false);
+  errorMessage     = signal<string | null>(null);
+  validationError  = signal<string | null>(null);
+  statusMessage    = signal<string>('Procesando señal ECG...');
+  patientResult    = signal<PatientAnalysisResult | null>(null);
   productionResult = signal<ProductionAnalysisResult | null>(null);
 
   datFile = signal<File | null>(null);
   heaFile = signal<File | null>(null);
   atrFile = signal<File | null>(null);
 
-  selectedPatient     = signal<Patient | null>(null);
-  patientQuery        = signal('');
-  patientResults      = signal<Patient[]>([]);
-  showPatientDropdown = signal(false);
-  isSearchingPatient  = signal(false);
-  private readonly patientSearchSubject = new Subject<string>();
+  selectedPatient = signal<Patient | null>(null);
 
   readonly isEvaluation = computed(() => this.mode() === 'evaluation');
 
@@ -68,45 +61,13 @@ export class EcgAnalysisComponent implements OnInit {
     const routeMode = this.route.snapshot.data['mode'] as AnalysisMode;
     this.mode.set(routeMode ?? 'evaluation');
     this.notifications.requestPermission();
-
-    this.patientSearchSubject.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      switchMap(q => {
-        if (!q.trim()) {
-          this.patientResults.set([]);
-          this.showPatientDropdown.set(false);
-          return of(null);
-        }
-        this.isSearchingPatient.set(true);
-        return this.patientsApi.getPatients(1, 8, q);
-      }),
-      takeUntilDestroyed(this.destroyRef),
-    ).subscribe({
-      next: res => {
-        if (res) { this.patientResults.set(res.data); this.showPatientDropdown.set(true); }
-        this.isSearchingPatient.set(false);
-      },
-      error: () => this.isSearchingPatient.set(false),
-    });
   }
 
-  onPatientSearch(query: string): void {
-    this.patientQuery.set(query);
-    this.selectedPatient.set(null);
-    this.patientSearchSubject.next(query);
+  onPatientChange(patient: Patient | null): void {
+    this.selectedPatient.set(patient);
   }
 
-  selectPatient(p: Patient): void {
-    this.selectedPatient.set(p);
-    this.patientQuery.set('');
-    this.patientResults.set([]);
-    this.showPatientDropdown.set(false);
-  }
-
-  clearPatient(): void { this.selectedPatient.set(null); this.patientQuery.set(''); }
-
-  onPatientBlur(): void { setTimeout(() => this.showPatientDropdown.set(false), 150); }
+  // ── Files ────────────────────────────────────────────────────────────
 
   onFileChange(event: Event, type: 'dat' | 'hea' | 'atr'): void {
     const file = (event.target as HTMLInputElement).files?.[0] ?? null;
@@ -115,6 +76,8 @@ export class EcgAnalysisComponent implements OnInit {
     else this.atrFile.set(file);
     this.validationError.set(null);
   }
+
+  // ── Submit & poll ────────────────────────────────────────────────────
 
   submit(): void {
     const dat = this.datFile();
@@ -200,8 +163,6 @@ export class EcgAnalysisComponent implements OnInit {
     this.errorMessage.set(null);
     this.validationError.set(null);
     this.selectedPatient.set(null);
-    this.patientQuery.set('');
-    this.patientResults.set([]);
   }
 
   private pollWithBackoff(taskId: string) {
@@ -209,9 +170,7 @@ export class EcgAnalysisComponent implements OnInit {
     let attempt = 0;
     return this.api.getAnalysisStatus(taskId).pipe(
       expand(res => {
-        if (res.data.status === 'completed' || res.data.status === 'failed') {
-          return EMPTY;
-        }
+        if (res.data.status === 'completed' || res.data.status === 'failed') return EMPTY;
         const d = DELAYS[Math.min(attempt++, DELAYS.length - 1)];
         return timer(d).pipe(switchMap(() => this.api.getAnalysisStatus(taskId)));
       }),

@@ -95,8 +95,38 @@
 
 .beat-chip { font-size: 0.65rem; padding: 1px 6px; }
 
-.text-warning { color: #d97706; font-size: 0.75rem; }
-.text-muted   { color: var(--text-secondary); font-size: 0.8rem; }
+/* ── column alignment: Confianza (4) y Prematuro (5) ─────────────────── */
+.beats-grid-header > span:nth-child(4),
+.beats-grid-header > span:nth-child(5),
+.beats-grid-row > span:nth-child(4),
+.beats-grid-row > span:nth-child(5) {
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── prematuro badge ─────────────────────────────────────────────────── */
+.badge-prematuro {
+  font-size: 0.65rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.badge-si  { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+.badge-no  { background: var(--app-bg); color: var(--text-secondary); border: 1px solid var(--border-color); }
+
+.no-patient {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  padding: 0.5rem 0;
+}
 
 /* ── pagination ──────────────────────────────────────────────────────── */
 .pagination {

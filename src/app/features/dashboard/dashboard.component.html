@@ -1,9 +1,20 @@
-<div class="page-header">
-  <h1 class="page-title"><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
-  <p class="page-subtitle">{{ dashboardSubtitle() }}</p>
+<!-- Hero Banner -->
+<div class="hero-banner">
+  <canvas #heroEkgCanvas class="hero-ecg-canvas"></canvas>
+
+  <div class="hero-content">
+    <span class="hero-tag"><i class="fas fa-wave-square"></i> OndaVital ECG</span>
+    <p class="hero-greeting">{{ greeting() }}</p>
+    <h1 class="hero-name">{{ userName() }}</h1>
+    <p class="hero-sub">{{ dashboardSubtitle() }}</p>
+  </div>
+
+  <div class="hero-deco-wrap" aria-hidden="true">
+    <i class="fas fa-heartbeat hero-deco-icon"></i>
+  </div>
 </div>
 
-<div class="container-fluid">
+<div class="dashboard-body">
 
   <div *ngIf="isLoading()" class="loading-state">
     <i class="fas fa-spinner fa-spin fa-2x"></i>
@@ -16,61 +27,76 @@
 
   <ng-container *ngIf="!isLoading() && stats()">
 
-    <!-- Stats Cards -->
+    <!-- KPI Cards -->
     <div class="stats-grid">
+
       <div class="stat-card stat-card--blue">
-        <div class="stat-card-icon"><i class="fas fa-chart-bar"></i></div>
-        <div class="stat-card-body">
-          <p class="stat-card-label">{{ analysisCardLabel() }}</p>
-          <p class="stat-card-value">{{ stats()!.total_analisis }}</p>
+        <i class="fas fa-chart-bar stat-watermark"></i>
+        <div class="stat-body">
+          <p class="stat-label">{{ analysisCardLabel() }}</p>
+          <p class="stat-value">{{ stats()!.total_analisis }}</p>
         </div>
       </div>
 
-      <div class="stat-card stat-card--green">
-        <div class="stat-card-icon"><i class="fas fa-heartbeat"></i></div>
-        <div class="stat-card-body">
-          <p class="stat-card-label">Latidos Procesados</p>
-          <p class="stat-card-value">{{ stats()!.total_latidos_procesados | number }}</p>
+      <div class="stat-card stat-card--red">
+        <i class="fas fa-heartbeat stat-watermark"></i>
+        <div class="stat-body">
+          <p class="stat-label">Latidos Procesados</p>
+          <p class="stat-value">{{ stats()!.total_latidos_procesados | number }}</p>
         </div>
       </div>
 
       <div class="stat-card stat-card--purple">
-        <div class="stat-card-icon"><i class="fas fa-bullseye"></i></div>
-        <div class="stat-card-body">
-          <p class="stat-card-label">Accuracy Promedio</p>
-          <p class="stat-card-value">
-            {{ stats()!.accuracy_promedio !== null ? (stats()!.accuracy_promedio! | number:'1.1-1') + '%' : 'N/A' }}
+        <i class="fas fa-bullseye stat-watermark"></i>
+        <div class="stat-body">
+          <p class="stat-label">Accuracy Promedio</p>
+          <p class="stat-value">
+            {{ stats()!.accuracy_promedio !== null
+                ? (stats()!.accuracy_promedio! | number:'1.1-1') + '%'
+                : 'N/A' }}
           </p>
         </div>
       </div>
 
       <div class="stat-card stat-card--orange">
-        <div class="stat-card-icon"><i class="fas fa-layer-group"></i></div>
-        <div class="stat-card-body">
-          <p class="stat-card-label">Modos Utilizados</p>
-          <p class="stat-card-value">{{ getModeEntries(stats()!.por_modo).length }}</p>
+        <i class="fas fa-layer-group stat-watermark"></i>
+        <div class="stat-body">
+          <p class="stat-label">Modos Activos</p>
+          <p class="stat-value">{{ getModeEntries(stats()!.por_modo).length }}</p>
         </div>
       </div>
+
     </div>
 
+    <!-- Breakdown + Recent -->
     <div class="dashboard-row">
-      <!-- Mode breakdown -->
+
+      <!-- Mode Breakdown -->
       <div class="card breakdown-card">
         <div class="card-header">
-          <h2 class="card-title"><i class="fas fa-pie-chart"></i> Análisis por Modo</h2>
+          <h2 class="card-title"><i class="fas fa-chart-pie"></i> Por Modo</h2>
+          <span class="card-header-badge">{{ stats()!.total_analisis }} total</span>
         </div>
         <div class="breakdown-list">
           <div *ngFor="let entry of getModeEntries(stats()!.por_modo)" class="breakdown-item">
-            <div class="breakdown-label">
+            <div class="breakdown-mode-icon" [class]="modeIconClass[entry.modo] ?? 'mode-icon-default'">
               <i [class]="modeIcons[entry.modo] ?? 'fas fa-circle'"></i>
-              {{ modeLabels[entry.modo] ?? entry.modo }}
             </div>
-            <div class="breakdown-bar-container">
-              <div class="breakdown-bar"
-                   [style.width.%]="stats()!.total_analisis > 0 ? (entry.count / stats()!.total_analisis * 100) : 0">
+            <div class="breakdown-right">
+              <div class="breakdown-top">
+                <span class="breakdown-label">{{ modeLabels[entry.modo] ?? entry.modo }}</span>
+                <span class="breakdown-stats">
+                  <strong class="breakdown-count">{{ entry.count }}</strong>
+                  <span class="breakdown-pct">{{ getModePercent(entry.count) }}%</span>
+                </span>
+              </div>
+              <div class="breakdown-track">
+                <div class="breakdown-fill"
+                     [class]="modeBarClass[entry.modo] ?? ''"
+                     [style.width.%]="getModePercent(entry.count)">
+                </div>
               </div>
             </div>
-            <span class="breakdown-count">{{ entry.count }}</span>
           </div>
           <p *ngIf="getModeEntries(stats()!.por_modo).length === 0" class="empty-state">
             Sin análisis registrados aún.
@@ -78,23 +104,29 @@
         </div>
       </div>
 
-      <!-- Recent analyses -->
+      <!-- Recent Analyses -->
       <div class="card recent-card">
         <div class="card-header">
-          <h2 class="card-title"><i class="fas fa-clock"></i> Análisis Recientes</h2>
-          <a routerLink="/history" class="card-header-link">Ver todos →</a>
+          <h2 class="card-title"><i class="fas fa-clock"></i> Recientes</h2>
+          <a routerLink="/history" class="card-header-link">
+            Ver todos <i class="fas fa-arrow-right"></i>
+          </a>
         </div>
         <div *ngIf="stats()!.recientes.length > 0" class="recent-list">
-          <div *ngFor="let a of stats()!.recientes" class="recent-item">
-            <div class="recent-item-main">
-              <span class="recent-record">{{ a.record_name || 'Demo' }}</span>
-              <span class="recent-mode" [class]="'badge badge-' + a.modo">{{ a.modo_display }}</span>
-            </div>
-            <div class="recent-item-meta">
-              <span>{{ a.fecha | formatDate }}</span>
-              <span *ngIf="a.accuracy !== null" class="recent-accuracy">
-                {{ a.accuracy | number:'1.1-1' }}%
-              </span>
+          <div *ngFor="let a of stats()!.recientes"
+               class="recent-item"
+               [class]="'recent-item--' + a.modo">
+            <div class="recent-body">
+              <div class="recent-top">
+                <span class="recent-record">{{ a.record_name || 'Demo' }}</span>
+                <span class="badge" [class]="'badge-' + a.modo">{{ a.modo_display }}</span>
+              </div>
+              <div class="recent-meta">
+                <span>{{ a.fecha | formatDate }}</span>
+                <span *ngIf="a.accuracy !== null" class="recent-accuracy">
+                  <i class="fas fa-bullseye"></i> {{ a.accuracy | number:'1.1-1' }}%
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -102,80 +134,106 @@
           No hay análisis recientes.
         </p>
       </div>
+
     </div>
 
-    <!-- Quick access cards by role -->
-    <div class="dashboard-row" style="margin-top:1.5rem;grid-template-columns:1fr 1fr">
+    <!-- Quick Access -->
+    <p class="section-label"><i class="fas fa-bolt"></i> Acceso Rápido</p>
+    <div class="quick-grid">
 
       <!-- Médico -->
       <ng-container *ngIf="!isPaciente() && !isAdmin() && !isInvestigador()">
-        <a routerLink="/ecg-analysis/annotated" class="card quick-card">
-          <div class="quick-card-icon" style="background:#EFF6FF"><i class="fas fa-stethoscope" style="color:#3B82F6"></i></div>
-          <div>
-            <p class="quick-card-title">Análisis ECG</p>
-            <p class="quick-card-sub">Iniciar análisis con anotaciones</p>
+        <a routerLink="/ecg-analysis/annotated" class="quick-card quick-card--blue">
+          <div class="quick-icon-col">
+            <i class="fas fa-stethoscope"></i>
           </div>
+          <div class="quick-body">
+            <p class="quick-title">Análisis ECG</p>
+            <p class="quick-sub">Iniciar análisis con anotaciones</p>
+          </div>
+          <i class="fas fa-chevron-right quick-arrow"></i>
         </a>
-        <a routerLink="/patients" class="card quick-card">
-          <div class="quick-card-icon" style="background:#F0FDF4"><i class="fas fa-users" style="color:#22C55E"></i></div>
-          <div>
-            <p class="quick-card-title">Pacientes</p>
-            <p class="quick-card-sub">Gestionar lista de pacientes</p>
+        <a routerLink="/patients" class="quick-card quick-card--teal">
+          <div class="quick-icon-col">
+            <i class="fas fa-users"></i>
           </div>
+          <div class="quick-body">
+            <p class="quick-title">Pacientes</p>
+            <p class="quick-sub">Gestionar lista de pacientes</p>
+          </div>
+          <i class="fas fa-chevron-right quick-arrow"></i>
         </a>
       </ng-container>
 
       <!-- Paciente -->
       <ng-container *ngIf="isPaciente()">
-        <a routerLink="/history" class="card quick-card">
-          <div class="quick-card-icon" style="background:#EFF6FF"><i class="fas fa-history" style="color:#3B82F6"></i></div>
-          <div>
-            <p class="quick-card-title">Mis Resultados</p>
-            <p class="quick-card-sub">Ver historial de mis análisis</p>
+        <a routerLink="/history" class="quick-card quick-card--blue">
+          <div class="quick-icon-col">
+            <i class="fas fa-history"></i>
           </div>
+          <div class="quick-body">
+            <p class="quick-title">Mis Resultados</p>
+            <p class="quick-sub">Ver historial de mis análisis</p>
+          </div>
+          <i class="fas fa-chevron-right quick-arrow"></i>
         </a>
-        <a routerLink="/model-info" class="card quick-card">
-          <div class="quick-card-icon" style="background:#FAF5FF"><i class="fas fa-brain" style="color:#A855F7"></i></div>
-          <div>
-            <p class="quick-card-title">Acerca del Modelo</p>
-            <p class="quick-card-sub">Información sobre el clasificador</p>
+        <a routerLink="/model-info" class="quick-card quick-card--purple">
+          <div class="quick-icon-col">
+            <i class="fas fa-brain"></i>
           </div>
+          <div class="quick-body">
+            <p class="quick-title">Acerca del Modelo</p>
+            <p class="quick-sub">Información sobre el clasificador</p>
+          </div>
+          <i class="fas fa-chevron-right quick-arrow"></i>
         </a>
       </ng-container>
 
       <!-- Investigador -->
       <ng-container *ngIf="isInvestigador()">
-        <a routerLink="/demo" class="card quick-card">
-          <div class="quick-card-icon" style="background:#F0FDF4"><i class="fas fa-flask" style="color:#22C55E"></i></div>
-          <div>
-            <p class="quick-card-title">Demo ECG</p>
-            <p class="quick-card-sub">Ejecutar análisis de demostración</p>
+        <a routerLink="/demo" class="quick-card quick-card--teal">
+          <div class="quick-icon-col">
+            <i class="fas fa-flask"></i>
           </div>
+          <div class="quick-body">
+            <p class="quick-title">Demo ECG</p>
+            <p class="quick-sub">Ejecutar análisis de demostración</p>
+          </div>
+          <i class="fas fa-chevron-right quick-arrow"></i>
         </a>
-        <a routerLink="/model-info" class="card quick-card">
-          <div class="quick-card-icon" style="background:#FAF5FF"><i class="fas fa-brain" style="color:#A855F7"></i></div>
-          <div>
-            <p class="quick-card-title">Acerca del Modelo</p>
-            <p class="quick-card-sub">Arquitectura y métricas del clasificador</p>
+        <a routerLink="/model-info" class="quick-card quick-card--purple">
+          <div class="quick-icon-col">
+            <i class="fas fa-brain"></i>
           </div>
+          <div class="quick-body">
+            <p class="quick-title">Acerca del Modelo</p>
+            <p class="quick-sub">Arquitectura y métricas del clasificador</p>
+          </div>
+          <i class="fas fa-chevron-right quick-arrow"></i>
         </a>
       </ng-container>
 
-      <!-- Administrador / Superusuario -->
+      <!-- Administrador -->
       <ng-container *ngIf="isAdmin()">
-        <a routerLink="/history" class="card quick-card">
-          <div class="quick-card-icon" style="background:#EFF6FF"><i class="fas fa-history" style="color:#3B82F6"></i></div>
-          <div>
-            <p class="quick-card-title">Historial Global</p>
-            <p class="quick-card-sub">Ver todos los análisis del sistema</p>
+        <a routerLink="/history" class="quick-card quick-card--blue">
+          <div class="quick-icon-col">
+            <i class="fas fa-history"></i>
           </div>
+          <div class="quick-body">
+            <p class="quick-title">Historial Global</p>
+            <p class="quick-sub">Ver todos los análisis del sistema</p>
+          </div>
+          <i class="fas fa-chevron-right quick-arrow"></i>
         </a>
-        <a routerLink="/admin/users" class="card quick-card">
-          <div class="quick-card-icon" style="background:#FFF7ED"><i class="fas fa-users-cog" style="color:#F97316"></i></div>
-          <div>
-            <p class="quick-card-title">Gestión de Usuarios</p>
-            <p class="quick-card-sub">Administrar cuentas del sistema</p>
+        <a routerLink="/admin/users" class="quick-card quick-card--orange">
+          <div class="quick-icon-col">
+            <i class="fas fa-users-cog"></i>
           </div>
+          <div class="quick-body">
+            <p class="quick-title">Gestión de Usuarios</p>
+            <p class="quick-sub">Administrar cuentas del sistema</p>
+          </div>
+          <i class="fas fa-chevron-right quick-arrow"></i>
         </a>
       </ng-container>
 

@@ -9,11 +9,12 @@ import { Patient } from '@core/models/patient.model';
 import { AnalysisHistory } from '@core/models/analysis-history.model';
 import { Pagination } from '@core/models/api-response.model';
 import { AuthService } from '@core/services/auth/auth.service';
+import { AppSearchInputComponent } from '@shared/components/app-search-input/app-search-input.component';
 
 @Component({
   selector: 'app-patient-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, AppSearchInputComponent],
   templateUrl: './patient-detail.component.html',
   styleUrls: ['./patient-detail.component.css'],
 })

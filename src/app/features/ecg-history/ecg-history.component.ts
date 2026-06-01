@@ -8,11 +8,12 @@ import { AuthService } from '@core/services/auth/auth.service';
 import { triggerBlobDownload } from '@shared/utils/download.utils';
 import { getDropdownPos } from '@shared/utils/dropdown.utils';
 import { useListSearch } from '@shared/utils/list-search.utils';
+import { AppSearchInputComponent } from '@shared/components/app-search-input/app-search-input.component';
 
 @Component({
   selector: 'app-ecg-history',
   standalone: true,
-  imports: [CommonModule, AppPaginationComponent, FormatDatePipe],
+  imports: [CommonModule, AppPaginationComponent, FormatDatePipe, AppSearchInputComponent],
   templateUrl: './ecg-history.component.html',
   styleUrls: ['./ecg-history.component.css'],
 })

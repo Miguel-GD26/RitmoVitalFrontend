@@ -10,11 +10,12 @@ import { UserEditModalComponent } from './user-edit-modal/user-edit-modal.compon
 import { ROLE_LABELS, ROLE_CHIP } from '@core/constants/roles.constants';
 import { getDropdownPos } from '@shared/utils/dropdown.utils';
 import { useListSearch } from '@shared/utils/list-search.utils';
+import { AppSearchInputComponent } from '@shared/components/app-search-input/app-search-input.component';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule, AppPaginationComponent, FormatDatePipe, UserCreateModalComponent, UserEditModalComponent],
+  imports: [CommonModule, AppPaginationComponent, FormatDatePipe, UserCreateModalComponent, UserEditModalComponent, AppSearchInputComponent],
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.css'],
 })

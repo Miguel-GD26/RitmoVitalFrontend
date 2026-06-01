@@ -97,21 +97,12 @@
       <div class="flex gap-3">
 
         <!-- Buscador -->
-        <div class="relative flex-1">
-          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <i class="fas fa-search text-gray-400 text-sm"></i>
-          </div>
-          <input type="text"
-                 class="block w-full py-2 pl-10 pr-8 text-sm text-gray-900 border border-gray-200 rounded-lg bg-gray-50 outline-none focus:border-blue-400 transition-colors"
-                 placeholder="Buscar por nombre o correo..."
-                 [value]="searchTerm()"
-                 (input)="onSearchInput($any($event.target).value)">
-          <button *ngIf="searchTerm()"
-                  class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 transition-colors"
-                  (click)="clearSearch()" type="button">
-            <i class="fas fa-times text-xs"></i>
-          </button>
-        </div>
+        <app-search-input
+          class="flex-1"
+          placeholder="Buscar por nombre o correo..."
+          [value]="searchTerm()"
+          (valueChange)="onSearchInput($event)">
+        </app-search-input>
 
         <!-- Botón filtros -->
         <button type="button"

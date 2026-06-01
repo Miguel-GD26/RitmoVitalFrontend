@@ -56,13 +56,6 @@ export const NAV_ITEMS: MenuItem[] = [
     roles: ['medico', 'investigador'],
   },
 
-  // Todos los roles
-  {
-    label: 'Acerca del Modelo',
-    icon: 'fas fa-brain',
-    route: '/model-info',
-  },
-
   // Administrador
   {
     label: 'Administración',
@@ -73,5 +66,12 @@ export const NAV_ITEMS: MenuItem[] = [
       { label: 'Usuarios',         route: '/admin/users', roles: ['administrador'] },
       { label: 'Roles y Permisos', route: '/admin/roles', roles: ['administrador'] },
     ],
+  },
+
+  // Todos los roles — siempre al último
+  {
+    label: 'Acerca del Modelo',
+    icon: 'fas fa-brain',
+    route: '/model-info',
   },
 ];

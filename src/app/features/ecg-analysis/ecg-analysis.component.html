@@ -35,96 +35,69 @@
 
       <!-- PATIENT SELECTOR -->
       <div class="file-group patient-group">
-        <label class="file-label">
-          <i class="fas fa-user"></i> Paciente
-          <span class="optional-tag">Opcional</span>
-        </label>
-
-        @if (selectedPatient()) {
-          <div class="patient-chip">
-            <i class="fas fa-user-check"></i>
-            <span>{{ selectedPatient()!.nombre }} {{ selectedPatient()!.apellido }}</span>
-            @if (selectedPatient()!.historia_clinica) {
-              <span class="patient-chip-hc">HC: {{ selectedPatient()!.historia_clinica }}</span>
-            }
-            <button type="button" class="patient-chip-clear" (click)="clearPatient()" title="Quitar paciente">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-        }
-
-        @if (!selectedPatient()) {
-          <div class="patient-search-wrapper">
-            <i class="fas patient-search-icon"
-               [class.fa-search]="!isSearchingPatient()"
-               [class.fa-spinner]="isSearchingPatient()"
-               [class.fa-spin]="isSearchingPatient()"></i>
-            <input
-              type="text"
-              class="patient-search-input"
-              placeholder="Buscar paciente por nombre o apellido..."
-              [value]="patientQuery()"
-              (input)="onPatientSearch($any($event.target).value)"
-              (blur)="onPatientBlur()"
-              autocomplete="off" />
-
-            @if (showPatientDropdown()) {
-              <div class="patient-dropdown">
-                @if (patientResults().length > 0) {
-                  @for (p of patientResults(); track p.id) {
-                    <button type="button" class="patient-option" (mousedown)="selectPatient(p)">
-                      <span class="patient-option-name">{{ p.nombre }} {{ p.apellido }}</span>
-                      @if (p.historia_clinica) {
-                        <span class="patient-option-meta">HC: {{ p.historia_clinica }}</span>
-                      }
-                    </button>
-                  }
-                } @else {
-                  <div class="patient-no-results">
-                    <i class="fas fa-user-slash"></i> Sin resultados para "{{ patientQuery() }}"
-                  </div>
-                }
-              </div>
-            }
-          </div>
-        }
+        <app-patient-select
+          label="Paciente"
+          [optional]="true"
+          (patientChange)="onPatientChange($event)">
+        </app-patient-select>
       </div>
 
       <!-- .dat -->
       <div class="file-group">
-        <label class="file-label">
-          <i class="fas fa-wave-square"></i> Señal ECG (.dat) <span class="required">*</span>
-        </label>
-        <label class="file-drop" [class.has-file]="datFile()">
-          <input type="file" accept=".dat" (change)="onFileChange($event, 'dat')" class="file-input-hidden">
-          <i class="fas" [class.fa-file-upload]="!datFile()" [class.fa-check-circle]="datFile()"></i>
-          <span>{{ datFile()?.name ?? 'Seleccionar archivo .dat' }}</span>
-        </label>
+        <div class="input-wrapper">
+          <i class="input-icon fas fa-wave-square"></i>
+          <label class="form-input file-trigger" [class.has-value]="!!datFile()">
+            <input type="file" accept=".dat" (change)="onFileChange($event, 'dat')" class="file-input-hidden">
+            <span class="file-display">{{ datFile()?.name ?? '' }}</span>
+            @if (!datFile()) {
+              <i class="fas fa-folder-open file-end-icon"></i>
+            } @else {
+              <i class="fas fa-check-circle file-end-icon file-ok"></i>
+            }
+          </label>
+          <span class="form-label" [class.floating]="!!datFile()">
+            Señal ECG (.dat) <span class="required">*</span>
+          </span>
+        </div>
       </div>
 
       <!-- .hea -->
       <div class="file-group">
-        <label class="file-label">
-          <i class="fas fa-file-alt"></i> Cabecera (.hea) <span class="required">*</span>
-        </label>
-        <label class="file-drop" [class.has-file]="heaFile()">
-          <input type="file" accept=".hea" (change)="onFileChange($event, 'hea')" class="file-input-hidden">
-          <i class="fas" [class.fa-file-upload]="!heaFile()" [class.fa-check-circle]="heaFile()"></i>
-          <span>{{ heaFile()?.name ?? 'Seleccionar archivo .hea' }}</span>
-        </label>
+        <div class="input-wrapper">
+          <i class="input-icon fas fa-file-alt"></i>
+          <label class="form-input file-trigger" [class.has-value]="!!heaFile()">
+            <input type="file" accept=".hea" (change)="onFileChange($event, 'hea')" class="file-input-hidden">
+            <span class="file-display">{{ heaFile()?.name ?? '' }}</span>
+            @if (!heaFile()) {
+              <i class="fas fa-folder-open file-end-icon"></i>
+            } @else {
+              <i class="fas fa-check-circle file-end-icon file-ok"></i>
+            }
+          </label>
+          <span class="form-label" [class.floating]="!!heaFile()">
+            Cabecera (.hea) <span class="required">*</span>
+          </span>
+        </div>
       </div>
 
       <!-- .atr (evaluation only) -->
       <ng-container *ngIf="isEvaluation()">
         <div class="file-group">
-          <label class="file-label">
-            <i class="fas fa-tags"></i> Anotaciones (.atr) <span class="required">*</span>
-          </label>
-          <label class="file-drop" [class.has-file]="atrFile()">
-            <input type="file" accept=".atr" (change)="onFileChange($event, 'atr')" class="file-input-hidden">
-            <i class="fas" [class.fa-file-upload]="!atrFile()" [class.fa-check-circle]="atrFile()"></i>
-            <span>{{ atrFile()?.name ?? 'Seleccionar archivo .atr' }}</span>
-          </label>
+          <div class="input-wrapper">
+            <i class="input-icon fas fa-tags"></i>
+            <label class="form-input file-trigger" [class.has-value]="!!atrFile()">
+              <input type="file" accept=".atr" (change)="onFileChange($event, 'atr')" class="file-input-hidden">
+              <span class="file-display">{{ atrFile()?.name ?? '' }}</span>
+              @if (!atrFile()) {
+                <i class="fas fa-folder-open file-end-icon"></i>
+              } @else {
+                <i class="fas fa-check-circle file-end-icon file-ok"></i>
+              }
+            </label>
+            <span class="form-label" [class.floating]="!!atrFile()">
+              Anotaciones (.atr) <span class="required">*</span>
+            </span>
+          </div>
         </div>
         <div class="info-box info-box--warning">
           <i class="fas fa-exclamation-triangle"></i>
