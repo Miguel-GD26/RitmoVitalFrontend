@@ -22,9 +22,11 @@ export interface UserProfile {
   institucion: string;
   email_verified: boolean;
   must_change_password: boolean;
+  totp_enabled: boolean;
 }
 
 export interface UpdateProfileRequest {
+  username?: string;
   first_name?: string;
   last_name?: string;
   fecha_nacimiento?: string;
@@ -39,10 +41,16 @@ export interface ChangePasswordRequest {
   new_password: string;
 }
 
+export interface TwoFASetupResponse {
+  secret: string;
+  provisioning_uri: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ProfileApiService {
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiBaseUrl}/api/v1/auth`;
+  private readonly authBase = `${environment.apiBaseUrl}/api/auth`;
 
   getProfile(): Observable<UserProfile> {
     return this.http.get<ApiResponse<UserProfile>>(`${this.base}/profile/`)
@@ -73,6 +81,22 @@ export class ProfileApiService {
 
   verifyEmail(token: string): Observable<void> {
     return this.http.post<ApiResponse<null>>(`${this.base}/verify-email/`, { token })
+      .pipe(map(() => void 0));
+  }
+
+  // 2FA Setup
+  get2faSetup(): Observable<TwoFASetupResponse> {
+    return this.http.get<ApiResponse<TwoFASetupResponse>>(`${this.authBase}/2fa/setup/`)
+      .pipe(map(res => res.data));
+  }
+
+  confirm2fa(code: string): Observable<void> {
+    return this.http.post<ApiResponse<null>>(`${this.authBase}/2fa/setup/`, { code })
+      .pipe(map(() => void 0));
+  }
+
+  disable2fa(code: string): Observable<void> {
+    return this.http.delete<ApiResponse<null>>(`${this.authBase}/2fa/setup/`, { body: { code } })
       .pipe(map(() => void 0));
   }
 }

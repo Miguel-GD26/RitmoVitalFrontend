@@ -39,10 +39,6 @@
           <!-- Campos de solo lectura -->
           <div class="readonly-fields">
             <div class="readonly-field">
-              <span class="readonly-label"><i class="fas fa-at"></i> Usuario</span>
-              <span class="readonly-value">{{ profile()?.username }}</span>
-            </div>
-            <div class="readonly-field">
               <span class="readonly-label"><i class="fas fa-envelope"></i> Correo</span>
               <span class="readonly-value">{{ profile()?.email }}</span>
             </div>
@@ -277,6 +273,85 @@
               {{ isSavingPwd() ? 'Guardando...' : 'Actualizar contraseña' }}
             </button>
           </form>
+        }
+
+        <!-- TAB: Seguridad (2FA) -->
+        @if (activeTab() === 'seguridad') {
+          <p class="section-title"><i class="fas fa-shield-alt"></i> Autenticación de dos factores</p>
+
+          @if (twoFAError()) {
+            <div class="form-validation" style="margin-bottom:.75rem">
+              <i class="fas fa-exclamation-triangle"></i> {{ twoFAError() }}
+            </div>
+          }
+
+          @if (profile()?.totp_enabled) {
+            <!-- 2FA ACTIVADO -->
+            <div class="twofa-active">
+              <i class="fas fa-check-circle twofa-active-icon"></i>
+              <div>
+                <p class="twofa-active-title">2FA activo</p>
+                <p class="twofa-active-desc">Tu cuenta está protegida. Necesitas tu app autenticadora para iniciar sesión.</p>
+              </div>
+            </div>
+
+            @if (!showDisable()) {
+              <button type="button" class="btn-2fa-danger" (click)="showDisable.set(true); twoFAError.set(null)">
+                <i class="fas fa-times-circle"></i> Desactivar 2FA
+              </button>
+            } @else {
+              <div class="twofa-code-row" style="margin-top:.75rem">
+                <input type="text" class="twofa-code-input" maxlength="6" inputmode="numeric"
+                       placeholder="Código de tu app" [value]="disableCode()"
+                       (input)="disableCode.set($any($event.target).value)">
+                <button type="button" class="btn-2fa-danger" (click)="disable2fa()" [disabled]="isLoading2FA()">
+                  @if (isLoading2FA()) { <i class="fas fa-spinner fa-spin"></i> }
+                  @else { <i class="fas fa-check"></i> }
+                  Confirmar desactivación
+                </button>
+                <button type="button" class="btn-2fa-cancel" (click)="showDisable.set(false); twoFAError.set(null)">
+                  Cancelar
+                </button>
+              </div>
+            }
+
+          } @else {
+            <!-- 2FA DESACTIVADO -->
+            @if (!twoFASetup()) {
+              <div class="twofa-info">
+                <i class="fas fa-mobile-alt twofa-info-icon"></i>
+                <div>
+                  <p class="twofa-info-title">Añade una capa extra de seguridad</p>
+                  <p class="twofa-info-desc">Cada vez que inicies sesión necesitarás un código temporal de tu app autenticadora (Google Authenticator, Authy, etc.).</p>
+                </div>
+              </div>
+              <button type="button" class="btn-2fa-primary" (click)="start2faSetup()" [disabled]="isLoading2FA()">
+                @if (isLoading2FA()) { <i class="fas fa-spinner fa-spin"></i> }
+                @else { <i class="fas fa-plus-circle"></i> }
+                Activar autenticación de dos factores
+              </button>
+
+            } @else {
+              <div class="twofa-setup">
+                <p class="twofa-step"><span class="twofa-step-num">1</span> Escanea este QR con tu app autenticadora</p>
+                <img [src]="qrUrl(twoFASetup()!.provisioning_uri)" alt="QR Code 2FA" class="twofa-qr">
+                <p class="twofa-secret-label">O ingresa el código manualmente:</p>
+                <code class="twofa-secret">{{ twoFASetup()!.secret }}</code>
+
+                <p class="twofa-step" style="margin-top:1rem"><span class="twofa-step-num">2</span> Ingresa el código de 6 dígitos que genera la app</p>
+                <div class="twofa-code-row">
+                  <input type="text" class="twofa-code-input" maxlength="6" inputmode="numeric"
+                         placeholder="000000" [value]="twoFACode()"
+                         (input)="twoFACode.set($any($event.target).value)">
+                  <button type="button" class="btn-2fa-primary" (click)="confirm2fa()" [disabled]="isLoading2FA()">
+                    @if (isLoading2FA()) { <i class="fas fa-spinner fa-spin"></i> }
+                    @else { <i class="fas fa-check"></i> }
+                    Confirmar y activar
+                  </button>
+                </div>
+              </div>
+            }
+          }
         }
 
       </div>

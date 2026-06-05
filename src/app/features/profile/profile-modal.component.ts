@@ -2,7 +2,7 @@ import { Component, OnInit, inject, output, signal, computed } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ProfileApiService, UserProfile } from '@core/services/profile/profile-api.service';
+import { ProfileApiService, UserProfile, TwoFASetupResponse } from '@core/services/profile/profile-api.service';
 import { AuthService } from '@core/services/auth/auth.service';
 import { AlertService } from '@core/services/alert';
 import { AppModalComponent } from '@shared/components/app-modal/app-modal.component';
@@ -32,14 +32,23 @@ export class ProfileModalComponent implements OnInit {
   pwdErrorMsg   = signal<string | null>(null);
   avatarFile    = signal<File | null>(null);
   avatarPreview = signal<string | null>(null);
-  activeTab     = signal<'datos' | 'password'>('datos');
+  activeTab     = signal<'datos' | 'password' | 'seguridad'>('datos');
   showCurPass   = signal(false);
   showNewPass   = signal(false);
   showConfPwd   = signal(false);
 
+  // 2FA state
+  twoFASetup    = signal<TwoFASetupResponse | null>(null);
+  twoFACode     = signal('');
+  isLoading2FA  = signal(false);
+  twoFAError    = signal<string | null>(null);
+  showDisable   = signal(false);
+  disableCode   = signal('');
+
   readonly tabs = [
-    { id: 'datos'    as const, label: 'Mis datos',  icon: 'fas fa-user' },
-    { id: 'password' as const, label: 'Contraseña', icon: 'fas fa-lock' },
+    { id: 'datos'     as const, label: 'Mis datos',  icon: 'fas fa-user' },
+    { id: 'password'  as const, label: 'Contraseña', icon: 'fas fa-lock' },
+    { id: 'seguridad' as const, label: 'Seguridad',  icon: 'fas fa-shield-alt' },
   ];
 
   readonly selectedRole   = computed(() => this.profile()?.groups[0] ?? '');
@@ -160,6 +169,57 @@ export class ProfileModalComponent implements OnInit {
       },
     });
   }
+
+  // ── 2FA ───────────────────────────────────────────────────────────────────
+
+  qrUrl(uri: string): string {
+    return `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(uri)}&size=180x180&ecc=M`;
+  }
+
+  start2faSetup(): void {
+    this.isLoading2FA.set(true);
+    this.twoFAError.set(null);
+    this.api.get2faSetup().subscribe({
+      next: data => { this.twoFASetup.set(data); this.isLoading2FA.set(false); },
+      error: err  => { this.twoFAError.set(err.error?.message ?? 'Error al iniciar 2FA.'); this.isLoading2FA.set(false); },
+    });
+  }
+
+  confirm2fa(): void {
+    const code = this.twoFACode().trim();
+    if (code.length !== 6) { this.twoFAError.set('Ingresa un código de 6 dígitos.'); return; }
+    this.isLoading2FA.set(true);
+    this.twoFAError.set(null);
+    this.api.confirm2fa(code).subscribe({
+      next: () => {
+        this.isLoading2FA.set(false);
+        this.twoFASetup.set(null);
+        this.twoFACode.set('');
+        this.profile.update(p => p ? { ...p, totp_enabled: true } : p);
+        this.alert.success('Autenticación de dos factores activada.');
+      },
+      error: err => { this.twoFAError.set(err.error?.message ?? 'Código incorrecto.'); this.isLoading2FA.set(false); },
+    });
+  }
+
+  disable2fa(): void {
+    const code = this.disableCode().trim();
+    if (code.length !== 6) { this.twoFAError.set('Ingresa un código de 6 dígitos.'); return; }
+    this.isLoading2FA.set(true);
+    this.twoFAError.set(null);
+    this.api.disable2fa(code).subscribe({
+      next: () => {
+        this.isLoading2FA.set(false);
+        this.showDisable.set(false);
+        this.disableCode.set('');
+        this.profile.update(p => p ? { ...p, totp_enabled: false } : p);
+        this.alert.success('Autenticación de dos factores desactivada.');
+      },
+      error: err => { this.twoFAError.set(err.error?.message ?? 'Código incorrecto.'); this.isLoading2FA.set(false); },
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
 
   generatePassword(): void {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789@#$!';
