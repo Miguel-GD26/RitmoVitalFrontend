@@ -118,9 +118,9 @@ export class EcgAnalysisComponent implements OnInit {
               const pagination = res.pagination ?? undefined;
               this.isAnalyzing.set(false);
               if (mode === 'annotated') {
-                this.patientResult.set({ ...result, pagination } as unknown as PatientAnalysisResult);
+                this.patientResult.set({ ...result, pagination } as PatientAnalysisResult);
               } else {
-                this.productionResult.set({ ...result, pagination } as unknown as ProductionAnalysisResult);
+                this.productionResult.set({ ...result, pagination } as ProductionAnalysisResult);
               }
               this.hasResult.set(true);
               this.sendNotification(mode, result as Record<string, unknown>);

@@ -1,4 +1,4 @@
-import { Pagination } from '../../../core/models/api-response.model';
+import { Pagination } from '@core/models/api-response.model';
 
 export interface PatientBeat {
   indice: number;

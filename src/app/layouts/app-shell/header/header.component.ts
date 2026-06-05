@@ -4,19 +4,20 @@ import { Router } from '@angular/router';
 import { SidebarService } from '@shared/services/sidebar.service';
 import { AuthService } from '@core/services/auth/auth.service';
 import { ROLE_LABELS } from '@core/constants/roles.constants';
+import { ProfileModalComponent } from '@features/profile/profile-modal.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ProfileModalComponent],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent {
-  private authService = inject(AuthService);
+  private authService    = inject(AuthService);
   private sidebarService = inject(SidebarService);
-  private router = inject(Router);
-  private elementRef = inject(ElementRef);
+  private router         = inject(Router);
+  private elementRef     = inject(ElementRef);
 
   readonly isCollapsed = this.sidebarService.collapsed;
 
@@ -29,6 +30,7 @@ export class HeaderComponent {
   });
 
   isProfileDropdownOpen = signal(false);
+  showProfileModal      = signal(false);
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
@@ -40,6 +42,18 @@ export class HeaderComponent {
   toggleProfileDropdown(event: Event): void {
     event.stopPropagation();
     this.isProfileDropdownOpen.update(v => !v);
+  }
+
+  openProfile(event: Event): void {
+    event.stopPropagation();
+    this.isProfileDropdownOpen.set(false);
+    this.showProfileModal.set(true);
+  }
+
+  onProfileClosed(): void {
+    this.showProfileModal.set(false);
+    // Refrescar avatar en el header si cambió
+    this.authService.verifySession().subscribe();
   }
 
   toggleDesktopSidebar(): void {
@@ -63,5 +77,4 @@ export class HeaderComponent {
     if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
     return parts[0] ? parts[0][0].toUpperCase() : 'U';
   }
-
 }

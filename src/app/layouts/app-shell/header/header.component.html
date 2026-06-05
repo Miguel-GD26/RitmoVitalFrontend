@@ -54,6 +54,12 @@
             <p>{{ userRole() }}</p>
           </div>
           <ul class="dropdown-menu-list">
+            <li>
+              <button type="button" class="dropdown-item" (click)="openProfile($event)">
+                <i class="fas fa-user-edit"></i>
+                <span>Mi Perfil</span>
+              </button>
+            </li>
             <li><div class="dropdown-divider"></div></li>
             <li>
               <button type="button" class="dropdown-item logout" (click)="logout()">
@@ -68,3 +74,7 @@
 
   </div>
 </header>
+
+@if (showProfileModal()) {
+  <app-profile-modal (closed)="onProfileClosed()"></app-profile-modal>
+}

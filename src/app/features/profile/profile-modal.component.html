@@ -1,0 +1,306 @@
+<app-modal size="7xl" (closed)="closed.emit()">
+  <ng-container modal-title>
+    <i class="fas fa-user-circle"></i> Mi Perfil
+  </ng-container>
+
+  <ng-container modal-body>
+
+    @if (isLoading()) {
+      <div class="loading-state">
+        <i class="fas fa-spinner fa-spin"></i>
+        <span>Cargando perfil...</span>
+      </div>
+    } @else {
+    <div class="modal-two-col">
+
+      <!-- LEFT: Avatar + campos de solo lectura -->
+      <div class="avatar-panel">
+        <div class="avatar-panel-inner">
+          <div class="avatar-upload-zone">
+            <div class="avatar-circle">
+              <img *ngIf="avatarPreview()" [src]="avatarPreview()!" class="avatar-img" alt="Avatar">
+              <span *ngIf="!avatarPreview()" class="avatar-initials">{{ avatarInitials() }}</span>
+            </div>
+            <label for="pm-avatar" class="camera-btn" title="Cambiar foto">
+              <i class="fas fa-camera"></i>
+            </label>
+            <input type="file" id="pm-avatar" class="sr-only"
+                   accept="image/jpeg,image/png,image/gif,image/webp"
+                   (change)="onAvatarChange($event)">
+          </div>
+
+          <p class="avatar-label">
+            {{ profile()?.first_name || profile()?.last_name
+                ? ((profile()?.first_name ?? '') + ' ' + (profile()?.last_name ?? '')).trim()
+                : profile()?.username }}
+          </p>
+          <p class="avatar-hint">JPG, PNG, GIF o WebP · máx. 2 MB</p>
+
+          <!-- Campos de solo lectura -->
+          <div class="readonly-fields">
+            <div class="readonly-field">
+              <span class="readonly-label"><i class="fas fa-at"></i> Usuario</span>
+              <span class="readonly-value">{{ profile()?.username }}</span>
+            </div>
+            <div class="readonly-field">
+              <span class="readonly-label"><i class="fas fa-envelope"></i> Correo</span>
+              <span class="readonly-value">{{ profile()?.email }}</span>
+            </div>
+            <div class="readonly-field">
+              <span class="readonly-label"><i class="fas fa-fingerprint"></i> {{ profile()?.tipo_documento || 'Documento' }}</span>
+              <span class="readonly-value">{{ profile()?.numero_documento || '—' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Tabs + contenido -->
+      <div class="form-panel">
+
+        <!-- Tab nav -->
+        <div class="tab-nav">
+          @for (tab of tabs; track tab.id) {
+            <button type="button" class="tab-btn"
+                    [class.tab-btn--active]="activeTab() === tab.id"
+                    (click)="activeTab.set(tab.id)">
+              <i [class]="tab.icon"></i>
+              {{ tab.label }}
+            </button>
+          }
+        </div>
+
+        <!-- TAB: Mis datos -->
+        @if (activeTab() === 'datos') {
+
+          <!-- Estado verificación de correo -->
+          <div class="email-status-bar" [class.email-status-bar--ok]="emailVerified()" [class.email-status-bar--warn]="!emailVerified()">
+            <i class="fas" [class.fa-check-circle]="emailVerified()" [class.fa-exclamation-circle]="!emailVerified()"></i>
+            <span>
+              {{ emailVerified() ? 'Correo verificado' : 'Correo pendiente de verificación' }}
+              &nbsp;·&nbsp; {{ profile()?.email }}
+            </span>
+          </div>
+
+          <div *ngIf="errorMsg()" class="form-validation" style="margin-bottom:.75rem;margin-top:.5rem">
+            <i class="fas fa-exclamation-triangle"></i> {{ errorMsg() }}
+          </div>
+
+          <form [formGroup]="form" (ngSubmit)="submit()">
+
+            <p class="section-title"><i class="fas fa-user"></i> Datos personales</p>
+
+            <div class="form-group">
+              <div class="input-wrapper">
+                <i class="input-icon fas fa-at"></i>
+                <input type="text" formControlName="username" class="form-input"
+                       placeholder=" " id="pm-username" autocomplete="username">
+                <label for="pm-username" class="form-label">Nombre de usuario <span class="required">*</span></label>
+              </div>
+              <div *ngIf="f['username'].invalid && f['username'].touched" class="form-validation">
+                <i class="fas fa-exclamation-triangle"></i> Requerido.
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-x-4 gap-y-0">
+              <div class="form-group">
+                <div class="input-wrapper">
+                  <i class="input-icon fas fa-user"></i>
+                  <input type="text" formControlName="first_name" class="form-input"
+                         placeholder=" " id="pm-first-name">
+                  <label for="pm-first-name" class="form-label">
+                    Nombre <span class="required">*</span>
+                  </label>
+                </div>
+                <div *ngIf="f['first_name'].invalid && f['first_name'].touched" class="form-validation">
+                  <i class="fas fa-exclamation-triangle"></i> Nombre requerido.
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="input-wrapper">
+                  <i class="input-icon fas fa-user"></i>
+                  <input type="text" formControlName="last_name" class="form-input"
+                         placeholder=" " id="pm-last-name">
+                  <label for="pm-last-name" class="form-label">
+                    Apellido <span class="required">*</span>
+                  </label>
+                </div>
+                <div *ngIf="f['last_name'].invalid && f['last_name'].touched" class="form-validation">
+                  <i class="fas fa-exclamation-triangle"></i> Apellido requerido.
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-x-4 gap-y-0">
+              <div class="form-group">
+                <app-date-picker formControlName="fecha_nacimiento"
+                                 placeholder="Fecha de nacimiento"
+                                 icon="fa-calendar-alt">
+                </app-date-picker>
+              </div>
+              <div class="form-group">
+                <app-form-select formControlName="sexo"
+                                 placeholder="Sexo"
+                                 icon="fa-venus-mars"
+                                 [options]="sexoOptions">
+                </app-form-select>
+              </div>
+            </div>
+
+            @if (isMedico()) {
+              <p class="section-title" style="margin-top:.25rem"><i class="fas fa-stethoscope"></i> Datos profesionales</p>
+              <div class="form-group">
+                <div class="input-wrapper">
+                  <i class="input-icon fas fa-id-badge"></i>
+                  <input type="text" formControlName="numero_colegiatura" class="form-input"
+                         placeholder=" " id="pm-colegiatura">
+                  <label for="pm-colegiatura" class="form-label">N° Colegiatura (CMP u otro)</label>
+                </div>
+              </div>
+            }
+
+            @if (isInvestigador()) {
+              <p class="section-title" style="margin-top:.25rem"><i class="fas fa-flask"></i> Datos académicos</p>
+              <div class="grid grid-cols-2 gap-x-4 gap-y-0">
+                <div class="form-group">
+                  <div class="input-wrapper">
+                    <i class="input-icon fas fa-microscope"></i>
+                    <input type="text" formControlName="orcid" class="form-input"
+                           placeholder=" " id="pm-orcid">
+                    <label for="pm-orcid" class="form-label">ORCID iD</label>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <div class="input-wrapper">
+                    <i class="input-icon fas fa-university"></i>
+                    <input type="text" formControlName="institucion" class="form-input"
+                           placeholder=" " id="pm-institucion">
+                    <label for="pm-institucion" class="form-label">Institución</label>
+                  </div>
+                </div>
+              </div>
+            }
+
+          </form>
+        }
+
+        <!-- TAB: Contraseña -->
+        @if (activeTab() === 'password') {
+          <form [formGroup]="pwdForm" (ngSubmit)="submitPassword()">
+
+            <p class="section-title"><i class="fas fa-shield-alt"></i> Seguridad de la cuenta</p>
+
+            <div *ngIf="pwdErrorMsg()" class="form-validation" style="margin-bottom:.75rem">
+              <i class="fas fa-exclamation-triangle"></i> {{ pwdErrorMsg() }}
+            </div>
+
+            <div class="form-group">
+              <div class="input-wrapper">
+                <i class="input-icon fas fa-key"></i>
+                <input [type]="showCurPass() ? 'text' : 'password'"
+                       formControlName="current_password" class="form-input pass-input-sm"
+                       placeholder=" " id="pm-cur-pwd" autocomplete="current-password">
+                <label for="pm-cur-pwd" class="form-label">Contraseña actual <span class="required">*</span></label>
+                <div class="pass-actions">
+                  <button type="button" class="pass-eye" tabindex="-1"
+                          (click)="showCurPass.set(!showCurPass())">
+                    <i class="fas" [class.fa-eye]="!showCurPass()" [class.fa-eye-slash]="showCurPass()"></i>
+                  </button>
+                </div>
+              </div>
+              <div *ngIf="pf['current_password'].invalid && pf['current_password'].touched" class="form-validation">
+                <i class="fas fa-exclamation-triangle"></i> Requerida.
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-x-4 gap-y-0">
+              <div class="form-group">
+                <div class="input-wrapper">
+                  <i class="input-icon fas fa-lock"></i>
+                  <input [type]="showNewPass() ? 'text' : 'password'"
+                         formControlName="new_password" class="form-input pass-input"
+                         placeholder=" " id="pm-new-pwd" autocomplete="new-password">
+                  <label for="pm-new-pwd" class="form-label">Nueva contraseña <span class="required">*</span></label>
+                  <div class="pass-actions">
+                    <button type="button" class="pass-eye" tabindex="-1"
+                            title="Generar contraseña" (click)="generatePassword()">
+                      <i class="fas fa-magic"></i>
+                    </button>
+                    <button type="button" class="pass-eye" tabindex="-1"
+                            (click)="showNewPass.set(!showNewPass())">
+                      <i class="fas" [class.fa-eye]="!showNewPass()" [class.fa-eye-slash]="showNewPass()"></i>
+                    </button>
+                  </div>
+                </div>
+                <div *ngIf="pf['new_password'].invalid && pf['new_password'].touched" class="form-validation">
+                  <i class="fas fa-exclamation-triangle"></i> Mínimo 8 caracteres.
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="input-wrapper">
+                  <i class="input-icon fas fa-lock"></i>
+                  <input [type]="showConfPwd() ? 'text' : 'password'"
+                         formControlName="confirm_password" class="form-input pass-input-sm"
+                         placeholder=" " id="pm-conf-pwd" autocomplete="new-password">
+                  <label for="pm-conf-pwd" class="form-label">Confirmar <span class="required">*</span></label>
+                  <div class="pass-actions">
+                    <button type="button" class="pass-eye" tabindex="-1"
+                            (click)="showConfPwd.set(!showConfPwd())">
+                      <i class="fas" [class.fa-eye]="!showConfPwd()" [class.fa-eye-slash]="showConfPwd()"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Checklist de requisitos en vivo -->
+            <div class="pwd-requirements">
+              <p class="pwd-req-title"><i class="fas fa-list-check"></i> Requisitos</p>
+              <ul class="pwd-req-list">
+                <li [class.pwd-req--met]="pwdLengthOk()">
+                  <i class="fas" [class.fa-check-circle]="pwdLengthOk()" [class.fa-circle]="!pwdLengthOk()"></i>
+                  Mínimo 8 caracteres
+                </li>
+                <li [class.pwd-req--met]="pwdDiffOk()">
+                  <i class="fas" [class.fa-check-circle]="pwdDiffOk()" [class.fa-circle]="!pwdDiffOk()"></i>
+                  Diferente a la contraseña actual
+                </li>
+                <li [class.pwd-req--met]="pwdMatchOk()">
+                  <i class="fas" [class.fa-check-circle]="pwdMatchOk()" [class.fa-circle]="!pwdMatchOk()"></i>
+                  Las contraseñas coinciden
+                </li>
+              </ul>
+            </div>
+
+            <button type="submit" class="btn-save-pwd btn-save-pwd--full" [disabled]="isSavingPwd()">
+              <i class="fas fa-spinner fa-spin" *ngIf="isSavingPwd()"></i>
+              <i class="fas fa-lock"            *ngIf="!isSavingPwd()"></i>
+              {{ isSavingPwd() ? 'Guardando...' : 'Actualizar contraseña' }}
+            </button>
+          </form>
+        }
+
+      </div>
+    </div>
+    }
+  </ng-container>
+
+  <ng-container modal-footer>
+    <span class="required-note" style="margin-right:auto">
+      <i class="fas fa-info-circle"></i>
+      Los campos con <strong>*</strong> son obligatorios
+    </span>
+    <button type="button" (click)="closed.emit()"
+            class="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+      Cancelar
+    </button>
+    @if (activeTab() === 'datos') {
+      <button type="button" (click)="submit()" [disabled]="isSaving() || isLoading()"
+              class="px-5 py-2 text-sm font-medium text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              style="background-color: var(--accent)">
+        <i class="fas fa-spinner fa-spin" *ngIf="isSaving()"></i>
+        <i class="fas fa-save"            *ngIf="!isSaving()"></i>
+        {{ isSaving() ? 'Guardando...' : 'Guardar cambios' }}
+      </button>
+    }
+  </ng-container>
+</app-modal>

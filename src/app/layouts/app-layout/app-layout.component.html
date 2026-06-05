@@ -8,3 +8,76 @@
     </div>
   </main>
 </div>
+
+<!-- ── Modal de bloqueo: verificación de email ────────────────────────── -->
+@if (emailNotVerified()) {
+  <div class="blocker-backdrop">
+    <div class="blocker-card">
+      <div class="blocker-icon warn">
+        <i class="fas fa-envelope-open-text"></i>
+      </div>
+      <h2 class="blocker-title">Confirma tu correo electrónico</h2>
+      <p class="blocker-desc">
+        Enviamos un enlace de verificación a<br>
+        <strong>{{ currentUserEmail() }}</strong>
+      </p>
+      <p class="blocker-hint">
+        Haz clic en el enlace del correo para continuar.<br>
+        Si no lo encuentras, revisa la carpeta de spam.
+      </p>
+      <button class="blocker-btn"
+              [disabled]="resending() || resendCooldown()"
+              (click)="resendVerification()">
+        <i class="fas" [class.fa-spinner]="resending()" [class.fa-spin]="resending()"
+                       [class.fa-paper-plane]="!resending()"></i>
+        {{ resending() ? 'Enviando...' : resendCooldown() ? 'Correo enviado (2 min)' : 'Reenviar correo' }}
+      </button>
+    </div>
+  </div>
+}
+
+<!-- ── Modal de bloqueo: cambio de contraseña obligatorio ─────────────── -->
+@if (mustChangePassword()) {
+  <div class="blocker-backdrop">
+    <div class="blocker-card">
+      <div class="blocker-icon accent">
+        <i class="fas fa-key"></i>
+      </div>
+      <h2 class="blocker-title">Establece tu contraseña</h2>
+      <p class="blocker-desc">
+        Por seguridad, debes cambiar la contraseña temporal<br>asignada por el administrador.
+      </p>
+
+      @if (forcedPwdError()) {
+        <div class="blocker-error">
+          <i class="fas fa-exclamation-triangle"></i> {{ forcedPwdError() }}
+        </div>
+      }
+
+      <div class="blocker-form">
+        <div class="blocker-field">
+          <i class="fas fa-lock field-icon"></i>
+          <input type="password" class="blocker-input" placeholder="Nueva contraseña (mín. 8 caracteres)"
+                 autocomplete="new-password"
+                 [value]="forcedNewPwd()"
+                 (input)="forcedNewPwd.set($any($event.target).value)">
+        </div>
+        <div class="blocker-field">
+          <i class="fas fa-lock field-icon"></i>
+          <input type="password" class="blocker-input" placeholder="Confirmar contraseña"
+                 autocomplete="new-password"
+                 [value]="forcedConfirmPwd()"
+                 (input)="forcedConfirmPwd.set($any($event.target).value)">
+        </div>
+      </div>
+
+      <button class="blocker-btn"
+              [disabled]="savingForcedPwd()"
+              (click)="saveForcedPassword()">
+        <i class="fas" [class.fa-spinner]="savingForcedPwd()" [class.fa-spin]="savingForcedPwd()"
+                       [class.fa-check]="!savingForcedPwd()"></i>
+        {{ savingForcedPwd() ? 'Guardando...' : 'Establecer contraseña' }}
+      </button>
+    </div>
+  </div>
+}

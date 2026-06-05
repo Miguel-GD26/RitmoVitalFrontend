@@ -15,6 +15,8 @@ export interface CurrentUser {
   groups: string[];
   is_superuser: boolean;
   avatar_url?: string | null;
+  email_verified: boolean;
+  must_change_password: boolean;
 }
 
 // Key stored in localStorage to know if a session was ever established.

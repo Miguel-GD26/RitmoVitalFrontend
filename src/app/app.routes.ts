@@ -99,6 +99,11 @@ export const routes: Routes = [
         path: 'auth/google/callback',
         loadComponent: () => import('./features/auth/google-callback/google-callback.component')
           .then(m => m.GoogleCallbackComponent)
+      },
+      {
+        path: 'auth/verify-email',
+        loadComponent: () => import('./features/auth/verify-email/verify-email.component')
+          .then(m => m.VerifyEmailComponent)
       }
     ]
   },
