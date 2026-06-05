@@ -1,10 +1,8 @@
 /* ── Layout ─────────────────────────────────────────────────────── */
 
-/* Contención horizontal — evita overflow en cualquier breakpoint */
 :host {
   display: block;
   max-width: 100%;
-  overflow-x: hidden;
 }
 
 .mi-grid {
